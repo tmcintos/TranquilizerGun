@@ -85,10 +85,10 @@ namespace TranquilizerGun {
 
         [Description("List of roles which will be ignored by the Tranquilizer.")]
         public bool doBlacklist { get; set; } = true;
-        public string blacklist { get; set; } = "";
+        public string blacklist { get; set; } = "Scp173, Scp106";
         [Description("List of roles which will require multiple shots to be put to sleep.")]
         public bool doSpecialRoles { get; set; } = false;
-        public string specialRolesList { get; set; } = "";
+        public string specialRolesList { get; set; } = "Scp173:2, Scp106:5";
 
         internal List<RoleType> roleBlacklist;
         internal Dictionary<RoleType, ushort> specialRoles;
