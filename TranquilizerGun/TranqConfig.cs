@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -12,168 +13,127 @@ using UnityEngine;
 namespace TranquilizerGun {
     public class TranqConfig : IConfig {
 
-        public static ItemType tranquilizer;
-        public static bool IsEnabled, clearBroadcasts, useBothPistols, usingEffects, teleportAway, dropItems, replaceCom;
-        public static Vector3 newPos;
+        [Description("Is the plugin enabled?")]
+        public bool IsEnabled { get; set; } = true;
 
-        public static ushort tranquilizedBroadcastDuration;
-        public static string tranquilizedBroadcast;
+        [Description("If set to false, only the commands will be enabled.")]
+        public bool IsEnabledCustom { get; set; } = true;
 
-        public static ushort pickedUpBroadcastDuration;
-        public static string pickedUpBroadcast;
+        #region Tranquilizer Settings
+        [Description("Is the COM-15 treated as a Tranquilizer?")]
+        public bool comIsTranquilizer { get; set; } = false;
 
-        public static string shotsLeftHintText;
+        [Description("Is the USP treated as a Tranquilizer?")]
+        public bool uspIsTranquilizer { get; set; } = true;
 
-        public static float sleepDurationMax, sleepDurationMin;
-        public static ushort ScpShotsNeeded;
-        public static bool FriendlyFire;
-        public static ushort replaceChance;
+        [Description("Any of the pistols need a silencer on them to be a Tranquilizer?")]
+        public bool silencerRequired { get; set; } = true;
 
-        public static bool doBlacklist;
-        public static List<RoleType> blacklist;
-        public static bool doSpecialRoles;
-        public static Dictionary<RoleType, ushort> specialRoles;
+        [Description("How much ammo is used per shot.")]
+        public int ammoUsedPerShot { get; set; } = 9;
+
+        [Description("For how long will the players be put to sleep.")]
+        public float sleepDurationMax { get; set; } = 3;
+        public float sleepDurationMin { get; set; } = 5;
+        #endregion
+
+        #region Broadcasts
+        [Description("Whether broadcasts are cleared before doing one.")]
+        public bool clearBroadcasts { get; set; } = true;
+
+        [Description("Broadcast shown when the player is shot with a Tranquilizer.")]
+        public ushort tranquilizedBroadcastDuration { get; set; } = 3;
+        public string tranquilizedBroadcast { get; set; } = "<color=red>You fell asleep...</color>";
+
+        [Description("Broadcast shown when a Tranquilizer is picked up.")]
+        public ushort pickedUpBroadcastDuration { get; set; } = 3;
+        public string pickedUpBroadcast { get; set; } = "<color=green><b>You picked up a tranquilizer gun!</b></color> \nEvery shot uses %ammo ammo, so count your bullets!";
+
+        [Description("Broadcast shown when a player is trying to shoot but has no ammo.")]
+        public ushort notEnoughAmmoBroadcastDuration { get; set; } = 3;
+        public string notEnoughAmmoBroadcast { get; set; } = "<color=red>You need at least %ammo for the bullet to fire!</color>";
+
+        [Description("(This will be used later)")]
+        public string shotsLeftHintText = "unused for now";
+
+        #endregion
+
+        #region Extra Settings
+        [Description("Can you use the Tranquilizer effects on allies?")]
+        public bool FriendlyFire { get; set; } = true;
+
+        [Description("Where players are teleported when they are put to sleep. (usingEffects must be disabled)")]
+        public Vector3 newPos { get; set; } = new Vector3(2, -2, 3);
+
+        [Description("Whether the player will be teleported away.")]
+        public bool teleportAway { get; set; } = true;
+
+        [Description("Whether a Ragdoll is summoned and Amnesia + Invisibility effect is applied.")]
+        public bool SummonRagdoll { get; set; } = true;
+
+        [Description("Should the player's inventory be dropped when shot.")]
+        public bool dropItems { get; set; } = false;
+
+        [Description("If Serpents Hand is enabled and you don't want friendly fire enabled, set this to true.")]
+        public bool areTutorialSerpentsHand { get; set; } = false;
+
+        [Description("Are COM-15s replaced with USPs at the start of the round?")]
+        public bool replaceCom { get; set; } = true;
+
+        [Description("Chance for COM-15s to be replaced with USPs. (From 0 to 100)")]
+        public ushort replaceChance { get; set; } = 100;
+
+        [Description("List of roles which will be ignored by the Tranquilizer.")]
+        public bool doBlacklist { get; set; } = true;
+        public string blacklist { get; set; } = "";
+        [Description("List of roles which will require multiple shots to be put to sleep.")]
+        public bool doSpecialRoles { get; set; } = false;
+        public string specialRolesList { get; set; } = "";
+
+        internal List<RoleType> roleBlacklist;
+        internal Dictionary<RoleType, ushort> specialRoles;
+        #endregion
 
         #region PlayerEffects
-        public static bool amnesia;
-        public static float amnesiaDuration;
+        [Description("Whether the effects below will be used when the player is shot by a Tranquilizer.")]
+        public bool usingEffects { get; set; } = false;
 
-        public static bool disabled;
-        public static float disabledDuration;
+        public bool amnesia { get; set; } = false;
+        public float amnesiaDuration { get; set; } = 3f;
 
-        public static bool flash;
-        public static float flashDuration;
+        public bool disabled { get; set; } = false;
+        public float disabledDuration { get; set; } = 3f;
 
-        public static bool blinded;
-        public static float blindedDuration;
+        public bool flash { get; set; } = false;
+        public float flashDuration { get; set; } = 3f;
 
-        public static bool concussed;
-        public static float concussedDuration;
+        public bool blinded { get; set; } = false;
+        public float blindedDuration { get; set; } = 3f;
+
+        public bool concussed { get; set; } = false;
+        public float concussedDuration { get; set; } = 3f;
                 
-        public static bool deafened;
-        public static float deafenedDuration;
+        public bool deafened { get; set; } = false;
+        public float deafenedDuration { get; set; } = 3f;
                 
-        public static bool ensnared;
-        public static float ensnaredDuration;
+        public bool ensnared { get; set; } = false;
+        public float ensnaredDuration { get; set; } = 3f;
                 
-        public static bool poisoned;
-        public static float poisonedDuration;
+        public bool poisoned { get; set; } = false;
+        public float poisonedDuration { get; set; } = 3f;
                 
-        public static bool asphyxiated;
-        public static float asphyxiatedDuration;
+        public bool asphyxiated { get; set; } = false;
+        public float asphyxiatedDuration { get; set; } = 3f;
                 
-        public static bool exhausted;
-        public static float exhaustedDuration;
+        public bool exhausted { get; set; } = false;
+        public float exhaustedDuration { get; set; } = 3f;
         #endregion
-
-        public string Prefix => "tranquilizergun";
-
-        bool IConfig.IsEnabled { get; set; }
-
-        public void Reload() {
-            tranquilizer = GetTranquilizerGun();
-            IsEnabled = PluginManager.YamlConfig.GetBool($"{Prefix}.enabled", true);
-            clearBroadcasts = PluginManager.YamlConfig.GetBool($"{Prefix}.broadcast.clearbroadcasts", true);
-            useBothPistols = PluginManager.YamlConfig.GetBool($"{Prefix}.usebothpistols", true);
-            usingEffects = PluginManager.YamlConfig.GetBool($"{Prefix}.usingeffects", true);
-            teleportAway = PluginManager.YamlConfig.GetBool($"{Prefix}.teleportplayer", true);
-            dropItems = PluginManager.YamlConfig.GetBool($"{Prefix}.playersdropitems", true);
-            newPos = new Vector3(PluginManager.YamlConfig.GetFloat($"{Prefix}.newposition.x"), PluginManager.YamlConfig.GetFloat($"{Prefix}.newposition.y"), PluginManager.YamlConfig.GetFloat($"{Prefix}.newposition.z"));
-            tranquilizedBroadcastDuration = PluginManager.YamlConfig.GetUShort($"{Prefix}.broadcast.sleep.duration", 3);
-            tranquilizedBroadcast = PluginManager.YamlConfig.GetString($"{Prefix}.broadcast.sleep.text", "<color=red>You fell asleep...</color>");
-            tranquilizedBroadcastDuration = PluginManager.YamlConfig.GetUShort($"{Prefix}.broadcast.pickup.duration", 3);
-            tranquilizedBroadcast = PluginManager.YamlConfig.GetString($"{Prefix}.broadcast.pickup.text", "<color=green><b>You picked up a tranquilizer gun!</b></color> \nEvery shot uses %ammo ammo, so count your bullets!");
-            tranquilizedBroadcast = PluginManager.YamlConfig.GetString($"{Prefix}.ammo.text", "<color=red></color>");
-            sleepDurationMin = PluginManager.YamlConfig.GetFloat($"{Prefix}.sleep.duration.min", 3);
-            sleepDurationMax = PluginManager.YamlConfig.GetFloat($"{Prefix}.sleep.duration.max", 5);
-            FriendlyFire = PluginManager.YamlConfig.GetBool($"{Prefix}.friendlyfire", true);
-            replaceCom = PluginManager.YamlConfig.GetBool($"{Prefix}.replacecompistol.enabled", true);
-            replaceChance = PluginManager.YamlConfig.GetUShort($"{Prefix}.replacecompistol.chance", 75);
-            doBlacklist = PluginManager.YamlConfig.GetBool($"{Prefix}.blacklist.enabled", true);
-            blacklist = BlacklistedRoles();
-            doSpecialRoles = PluginManager.YamlConfig.GetBool($"{Prefix}.special.enabled", true);
-            specialRoles = SpecialRoles();
-            amnesia = PluginManager.YamlConfig.GetBool($"{Prefix}.effects.amnesia.enabled", true);
-            amnesiaDuration = PluginManager.YamlConfig.GetFloat($"{Prefix}.effects.amnesia.duration", 3);
-            disabled = PluginManager.YamlConfig.GetBool($"{Prefix}.effects.disabled.enabled", true);
-            disabledDuration = PluginManager.YamlConfig.GetFloat($"{Prefix}.effects.disabled.duration", 3);
-            flash = PluginManager.YamlConfig.GetBool($"{Prefix}.effects.flash.enabled", true);
-            flashDuration = PluginManager.YamlConfig.GetFloat($"{Prefix}.effects.flash.duration", 3);
-            blinded = PluginManager.YamlConfig.GetBool($"{Prefix}.effects.blinded.enabled", true);
-            blindedDuration = PluginManager.YamlConfig.GetFloat($"{Prefix}.effects.blinded.duration", 3);
-            concussed = PluginManager.YamlConfig.GetBool($"{Prefix}.effects.concussed.enabled", true);
-            concussedDuration = PluginManager.YamlConfig.GetFloat($"{Prefix}.effects.concussed.duration", 3);
-            deafened = PluginManager.YamlConfig.GetBool($"{Prefix}.effects.deafened.enabled", true);
-            deafenedDuration = PluginManager.YamlConfig.GetFloat($"{Prefix}.effects.deafened.duration", 3);
-            ensnared = PluginManager.YamlConfig.GetBool($"{Prefix}.effects.esnared.enabled", true);
-            ensnaredDuration = PluginManager.YamlConfig.GetFloat($"{Prefix}.effects.esnared.duration", 3);
-            poisoned = PluginManager.YamlConfig.GetBool($"{Prefix}.effects.poisoned.enabled", true);
-            poisonedDuration = PluginManager.YamlConfig.GetFloat($"{Prefix}.effects.poisoned.duration", 3);
-            asphyxiated = PluginManager.YamlConfig.GetBool($"{Prefix}.effects.asphyxiated.enabled", true);
-            asphyxiatedDuration = PluginManager.YamlConfig.GetFloat($"{Prefix}.effects.asphyxiated.duration", 3);
-            exhausted = PluginManager.YamlConfig.GetBool($"{Prefix}.effects.exhausted.enabled", true);
-            exhaustedDuration = PluginManager.YamlConfig.GetFloat($"{Prefix}.effects.exhausted.duration", 3);
-        }
-
-        #region Suicide
-        //public void Restart() {
-        //    PluginManager.YamlConfig.SetString($"{Prefix}.gun", "GunUSP");
-        //    PluginManager.YamlConfig.SetString($"{Prefix}.enabled", "true");
-        //    PluginManager.YamlConfig.SetString($"{Prefix}.broadcast.clearbroadcasts", "true");
-        //    PluginManager.YamlConfig.SetString($"{Prefix}.usebothpistols", "true");
-        //    PluginManager.YamlConfig.SetString($"{Prefix}.usingeffects", "true");
-        //    PluginManager.YamlConfig.SetString($"{Prefix}.teleportplayer", "true");
-        //    PluginManager.YamlConfig.SetString($"{Prefix}.playersdropitems", "true");
-        //    PluginManager.YamlConfig.SetString($"{Prefix}.newposition.x");
-        //    PluginManager.YamlConfig.SetString($"{Prefix}.newposition.y");
-        //    PluginManager.YamlConfig.SetString($"{Prefix}.newposition.z");
-        //    PluginManager.YamlConfig.SetString($"{Prefix}.broadcast.sleep.duration", "3");
-        //    PluginManager.YamlConfig.SetString($"{Prefix}.broadcast.sleep.text", "<color=red>You fell asleep...</color>");
-        //    PluginManager.YamlConfig.SetString($"{Prefix}.sleep.duration.min", "3");
-        //    PluginManager.YamlConfig.SetString($"{Prefix}.sleep.duration.max", "5");
-        //    PluginManager.YamlConfig.SetString($"{Prefix}.friendlyfire", "true");
-        //    PluginManager.YamlConfig.SetString($"{Prefix}.replacecompistol.enabled", "true");
-        //    PluginManager.YamlConfig.SetString($"{Prefix}.replacecompistol.chance", "75");
-        //    PluginManager.YamlConfig.SetString($"{Prefix}.blacklist.enabled", "true");
-        //    PluginManager.YamlConfig.SetString($"{Prefix}.blacklist.roles", "Scp173, Scp106");
-        //    PluginManager.YamlConfig.SetString($"{Prefix}.special.enabled", "true");
-        //    PluginManager.YamlConfig.SetString($"{Prefix}.special.roles", "Scp173:3, Scp106:2");
-        //    PluginManager.YamlConfig.SetString($"{Prefix}.effects.amnesia.enabled", "true");
-        //    PluginManager.YamlConfig.SetString($"{Prefix}.effects.amnesia.duration", "3");
-        //    PluginManager.YamlConfig.SetString($"{Prefix}.effects.disabled.enabled", "true");
-        //    PluginManager.YamlConfig.SetString($"{Prefix}.effects.disabled.duration", "3");
-        //    PluginManager.YamlConfig.SetString($"{Prefix}.effects.flash.enabled", "true");
-        //    PluginManager.YamlConfig.SetString($"{Prefix}.effects.flash.duration", "3");
-        //    PluginManager.YamlConfig.SetString($"{Prefix}.effects.blinded.enabled", "true");
-        //    PluginManager.YamlConfig.SetString($"{Prefix}.effects.blinded.duration", "3");
-        //    PluginManager.YamlConfig.SetString($"{Prefix}.effects.concussed.enabled", "true");
-        //    PluginManager.YamlConfig.SetString($"{Prefix}.effects.concussed.duration", "3");
-        //    PluginManager.YamlConfig.SetString($"{Prefix}.effects.deafened.enabled", "true");
-        //    PluginManager.YamlConfig.SetString($"{Prefix}.effects.deafened.duration", "3");
-        //    PluginManager.YamlConfig.SetString($"{Prefix}.effects.esnared.enabled", "true");
-        //    PluginManager.YamlConfig.SetString($"{Prefix}.effects.esnared.duration", "3");
-        //    PluginManager.YamlConfig.SetString($"{Prefix}.effects.poisoned.enabled", "true");
-        //    PluginManager.YamlConfig.SetString($"{Prefix}.effects.poisoned.duration", "3");
-        //    PluginManager.YamlConfig.SetString($"{Prefix}.effects.asphyxiated.enabled", "true");
-        //    PluginManager.YamlConfig.SetString($"{Prefix}.effects.asphyxiated.duration", "3");
-        //    PluginManager.YamlConfig.SetString($"{Prefix}.effects.exhausted.enabled", "true");
-        //    PluginManager.YamlConfig.SetString($"{Prefix}.effects.exhausted.duration", "3");
-        //}
-        #endregion
-
-        public ItemType GetTranquilizerGun() {
-            if(Enum.TryParse($"{Prefix}.gun", true, out ItemType type))
-                return type;
-            else
-                Log.Error("Couldn't parse TranqGun.");
-            return ItemType.GunUSP;
-        }
 
         public List<RoleType> BlacklistedRoles() {
             List<RoleType> l = new List<RoleType>();
             if(doBlacklist) {
                 try {
-                    string[] bl = Regex.Replace(PluginManager.YamlConfig.GetString($"{Prefix}.blacklist.roles", "Scp173, Scp106"), @"\s+", "").Split(',');
+                    string[] bl = Regex.Replace(blacklist, @"\s+", "").Split(',');
                     foreach(string r in bl) {
                         if(Enum.TryParse(r, true, out RoleType role)) {
                             l.Add(role);
@@ -191,7 +151,7 @@ namespace TranquilizerGun {
             Dictionary<RoleType, ushort> l = new Dictionary<RoleType, ushort>();
             if(doSpecialRoles) {
                 try {
-                    string[] specialRoles = Regex.Replace(PluginManager.YamlConfig.GetString($"{Prefix}.special.roles", "Scp173:3, Scp106:2"), @"\s+", "").Split(',');
+                    string[] specialRoles = Regex.Replace(specialRolesList, @"\s+", "").Split(',');
                     foreach(string o in specialRoles) {
                         string[] option = Regex.Replace(o, @"\s+", "").Split(':');
                         if(Enum.TryParse(option[0], true, out RoleType role) && ushort.TryParse(option[1], out ushort shots)) {
@@ -204,6 +164,5 @@ namespace TranquilizerGun {
             }
             return l;
         }
-
     }
 }

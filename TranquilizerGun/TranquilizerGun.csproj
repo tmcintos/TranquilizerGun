@@ -38,11 +38,11 @@
     <Reference Include="Assembly-CSharp-firstpass, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null">
       <HintPath>..\..\..\..\..\Desktop\2017\Servidores\SCP\SCPSL_Data\Managed\Assembly-CSharp-firstpass.dll</HintPath>
     </Reference>
-    <Reference Include="Assembly-CSharp-Publicized">
-      <HintPath>..\..\..\..\References\Assembly-CSharp-Publicized.dll</HintPath>
+    <Reference Include="Assembly-CSharp_public">
+      <HintPath>..\..\..\..\References\Publicizer\Assembly-CSharp_public.dll</HintPath>
     </Reference>
     <Reference Include="Exiled.API">
-      <HintPath>..\..\..\..\References\EXILED-PTB\Exiled.API.dll</HintPath>
+      <HintPath>..\..\..\..\References\EXILED-PTB\Plugins\dependencies\Exiled.API.dll</HintPath>
     </Reference>
     <Reference Include="Exiled.Events">
       <HintPath>..\..\..\..\References\EXILED-PTB\Plugins\Exiled.Events.dll</HintPath>

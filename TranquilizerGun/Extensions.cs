@@ -21,6 +21,12 @@ namespace TranquilizerGun {
 			return false;
 		}
 
+		public static void RemoveWeaponAmmo(this Player player, int amount) {
+			player.Inventory.items.ModifyDuration(
+			player.Inventory.items.IndexOf(player.CurrentItem),
+			player.CurrentItem.durability - amount);
+		}
+
 		public static bool IsPistol(this ItemType type) => type == ItemType.GunCOM15 || type == ItemType.GunUSP;
 
 		public static void Print(this Exception e, string type) {
@@ -30,6 +36,7 @@ namespace TranquilizerGun {
 		public static Inventory.SyncItemInfo GetTranquilizerItem() {
 			Inventory.SyncItemInfo _tempGun = new Inventory.SyncItemInfo();
 			_tempGun.modBarrel = 1;
+			_tempGun.durability = 18;
 
 			return _tempGun;
 		}
