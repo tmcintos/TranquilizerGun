@@ -37,7 +37,8 @@ namespace TranquilizerGun {
 			Inventory.SyncItemInfo _tempGun = new Inventory.SyncItemInfo();
 			_tempGun.modBarrel = 1;
 			_tempGun.durability = 18;
-
+			_tempGun.id = ItemType.GunUSP;
+			// This is still todo
 			return _tempGun;
 		}
 

@@ -43,16 +43,16 @@ namespace TranquilizerGun {
             if((ev.Shooter.CurrentItem.id == ItemType.GunCOM15 && Config.comIsTranquilizer) 
                 || (ev.Shooter.CurrentItem.id == ItemType.GunUSP && Config.uspIsTranquilizer)) {
 
-                if(ev.Shooter.CurrentItem.durability < Config.ammoUsedPerShot) {
+                if(ev.Shooter.CurrentItem.durability < Config.ammoUsedPerShot - 1) {
                     if(Config.notEnoughAmmoBroadcastDuration > 0) {
                         if(Config.clearBroadcasts)
                             ev.Shooter.ClearBroadcasts();
-                        ev.Shooter.Broadcast(Config.notEnoughAmmoBroadcastDuration, Config.notEnoughAmmoBroadcast);
+                        ev.Shooter.Broadcast(Config.notEnoughAmmoBroadcastDuration, Config.notEnoughAmmoBroadcast.Replace("%ammo", $"{Config.ammoUsedPerShot}"));
                     }
-                    ev.Shooter.RemoveWeaponAmmo(Config.ammoUsedPerShot);
                     ev.IsAllowed = false;
                     return;
-                }
+                }    
+                ev.Shooter.RemoveWeaponAmmo(Config.ammoUsedPerShot - 1);
             }
         }
 
@@ -60,7 +60,7 @@ namespace TranquilizerGun {
             if(IsTranquilizer(ev.Pickup.ItemId) && Config.pickedUpBroadcastDuration > 0) {
                 if(Config.clearBroadcasts)
                     ev.Player.ClearBroadcasts();
-                ev.Player.Broadcast(Config.pickedUpBroadcastDuration, Config.pickedUpBroadcast);
+                ev.Player.Broadcast(Config.pickedUpBroadcastDuration, Config.pickedUpBroadcast.Replace("%ammo", $"{Config.ammoUsedPerShot}"));
             }
         }
 
@@ -287,7 +287,7 @@ namespace TranquilizerGun {
                 if(Config.tranquilizedBroadcastDuration > 0) {
                     if(Config.clearBroadcasts)
                         player.ClearBroadcasts();
-                    player.Broadcast(Config.tranquilizedBroadcastDuration, Config.tranquilizedBroadcast);
+                    player.Broadcast(Config.tranquilizedBroadcastDuration, Config.tranquilizedBroadcast.Replace("%seconds", ((int) sleepDuration).ToString()));
                     
                 }
 
@@ -305,7 +305,7 @@ namespace TranquilizerGun {
                     player.GameObject.GetComponent<RagdollManager>().SpawnRagdoll(
                         oldPos, player.GameObject.transform.rotation, player.ReferenceHub.playerMovementSync.PlayerVelocity,
                         (int) player.Role, hitInfo, false, player.Nickname, player.Nickname, 0);
-                    ;
+                    
 
                     // Apply effects
                     controller.EnableEffect<Amnesia>(sleepDuration);
@@ -393,6 +393,14 @@ namespace TranquilizerGun {
 
             if(Config.poisoned) {
                 controller.EnableEffect<Poisoned>(Config.poisonedDuration);
+            }
+
+            if(Config.bleeding) {
+                controller.EnableEffect<Bleeding>(Config.bleedingDuration);
+            }
+
+            if(Config.sinkhole) {
+                controller.EnableEffect<SinkHole>(Config.sinkholeDuration);
             }
         }
 

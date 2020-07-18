@@ -22,7 +22,8 @@ namespace TranquilizerGun {
         public override void OnEnabled() {
             handler = new EventsHandler(this);
 
-            RegisterEvents();
+            if(Config.IsEnabledCustom)
+                RegisterEvents();
             Server.SendingRemoteAdminCommand += handler.OnCommand;
 
             Timing.CallDelayed(1f, () => {
@@ -40,7 +41,8 @@ namespace TranquilizerGun {
         public override void OnDisabled() {
 
             Server.SendingRemoteAdminCommand -= handler.OnCommand;
-            UnregisterEvents();
+            if(Config.IsEnabledCustom)
+                UnregisterEvents();
 
             handler = null;
             Log.Info($"{Name} has been disabled!");

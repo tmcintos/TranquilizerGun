@@ -41,7 +41,7 @@ namespace TranquilizerGun {
         [Description("Whether broadcasts are cleared before doing one.")]
         public bool clearBroadcasts { get; set; } = true;
 
-        [Description("Broadcast shown when the player is shot with a Tranquilizer.")]
+        [Description("Broadcast shown when the player is shot with a Tranquilizer. (Using %seconds in the text will be replaced by how many seconds the player will sleep for.")]
         public ushort tranquilizedBroadcastDuration { get; set; } = 3;
         public string tranquilizedBroadcast { get; set; } = "<color=red>You fell asleep...</color>";
 
@@ -115,18 +115,24 @@ namespace TranquilizerGun {
                 
         public bool deafened { get; set; } = false;
         public float deafenedDuration { get; set; } = 3f;
-                
+
         public bool ensnared { get; set; } = false;
         public float ensnaredDuration { get; set; } = 3f;
-                
+
+        public bool bleeding { get; set; } = false;
+        public float bleedingDuration { get; set; } = 3f;
+
         public bool poisoned { get; set; } = false;
         public float poisonedDuration { get; set; } = 3f;
                 
         public bool asphyxiated { get; set; } = false;
         public float asphyxiatedDuration { get; set; } = 3f;
-                
+
         public bool exhausted { get; set; } = false;
         public float exhaustedDuration { get; set; } = 3f;
+
+        public bool sinkhole { get; set; } = false;
+        public float sinkholeDuration { get; set; } = 3f;
         #endregion
 
         public List<RoleType> BlacklistedRoles() {
