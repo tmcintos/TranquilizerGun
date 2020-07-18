@@ -105,21 +105,22 @@ namespace TranquilizerGun {
                     return;
 
                 string cmd = ev.Name.ToLower();
+                Player sender = ev.Sender;
                 // reload / protect / replaceguns / toggle / sleep / version / setgun / addgun / defaultconfig
 
                 if(cmd.Equals("tg") || cmd.Equals("tgun") || cmd.Equals("tranqgun") || cmd.Equals("tranquilizergun")) {
                     ev.IsAllowed = false;
-                    if(ev.Arguments.Count > 1) {
+                    if(ev.Arguments.Count >= 1) {
                         switch(ev.Arguments[0].ToLower()) {
                             case "protect":
                             case "protection":
                             case "armor":
-                                if(!ev.CommandSender.CheckPermission("tgun.armor")) {
+                                if(!sender.CheckPermission("tgun.armor")) {
                                     ev.ReplyMessage = "<color=red>Permission denied.</color>";
                                     return;
                                 }
 
-                                if(ev.Arguments.Count > 2) {
+                                if(ev.Arguments.Count > 1) {
                                     string argument = ev.Arguments[1];
                                     if(argument.ToLower() == "all" || argument == "*") {
                                         int amountArmored = 0;
@@ -152,7 +153,7 @@ namespace TranquilizerGun {
                                 }
                                 return;
                             case "replaceguns":
-                                if(!ev.CommandSender.CheckPermission("tgun.replaceguns")) {
+                                if(!sender.CheckPermission("tgun.replaceguns")) {
                                     ev.ReplyMessage = "<color=red>Permission denied.</color>";
                                     return;
                                 }
@@ -167,16 +168,16 @@ namespace TranquilizerGun {
                                 ev.ReplyMessage = $"<color=#4ce300>A total of {a} COM-15 pistols have been replaced.</color>";
                                 return;
                             case "sleep":
-                                if(!ev.CommandSender.CheckPermission("tgun.sleep")) {
+                                if(!sender.CheckPermission("tgun.sleep")) {
                                     ev.ReplyMessage = "<color=red>Permission denied.</color>";
                                     return;
                                 }
-                                if(ev.Arguments.Count > 2) {
+                                if(ev.Arguments.Count > 1) {
                                     string argument = ev.Arguments[1];
                                     if(argument.ToLower() == "all" || argument == "*") {
                                         int amountSleeping = 0;
                                         foreach(Player p in Player.List) {
-                                            if(p.Side == Side.None && !tranquilized.Contains(p.UserId)) {
+                                            if(p.Side != Side.None && !tranquilized.Contains(p.UserId)) {
                                                 Sleep(p);
                                                 amountSleeping++;
                                             }
@@ -193,6 +194,7 @@ namespace TranquilizerGun {
                                             return;
                                         }
 
+                                        Sleep(p);
                                         ev.ReplyMessage = $"<color=#4ce300>{p.Nickname} has been forced to sleep. Tell him sweet dreams!</color>";
                                         return;
                                     }
@@ -207,16 +209,16 @@ namespace TranquilizerGun {
                             case "receivegun":
                             case "addgun":
                             case "givegun":
-                                if(!ev.CommandSender.CheckPermission("tgun.givegun")) {
+                                if(!sender.CheckPermission("tgun.givegun")) {
                                     ev.ReplyMessage = "<color=red>Permission denied.</color>";
                                     return;
                                 }
-                                if(ev.Arguments.Count > 2) {
+                                if(ev.Arguments.Count > 1) {
                                     string argument = ev.Arguments[1];
                                     if(argument.ToLower() == "all" || argument == "*") {
                                         int amountGiven = 0;
                                         foreach(Player p in Player.List) {
-                                            if(p.Side == Side.None) {
+                                            if(p.Side != Side.None) {
                                                 ev.Sender.AddItem(Extensions.GetTranquilizerItem());
                                                 amountGiven++;
                                             }
@@ -240,7 +242,7 @@ namespace TranquilizerGun {
                                 }
                                 return;
                             case "toggle":
-                                if(!ev.CommandSender.CheckPermission("tgun.toggle")) {
+                                if(!sender.CheckPermission("tgun.toggle")) {
                                     ev.ReplyMessage = "<color=red>Permission denied.</color>";
                                     return;
                                 }
@@ -255,19 +257,18 @@ namespace TranquilizerGun {
                                 }
                                 return;
                         }
-
-                        ev.ReplyMessage = 
-                            $"\n<color=#4ce300>--- [ TranqGun Help ] ---</color>" +
-                            $"\n<color=#006eff>Reload:</color> <color=#f7ff9c>Reloads the configuration variables. (Not the same as \"resetconfig\")</color>" +
-                            $"\n<color=#006eff>Protection:</color> <color=#f7ff9c>Grants you special protection against Tranquilizers.</color>" +
-                            $"\n<color=#006eff>ReplaceGuns:</color> <color=#f7ff9c>Replaces any COM-15s with Tranquilizers.</color>" +
-                            $"\n<color=#006eff>Sleep:</color> <color=#f7ff9c>Forces the sleep method on someone.</color>" +
-                            $"\n<color=#006eff>Setgun:</color> <color=#f7ff9c>The gun you're holding will now be the Tranquilizer.</color>" +
-                            $"\n<color=#006eff>AddGun:</color> <color=#f7ff9c>Add a Tranquilizer to your inventory.</color>" +
-                            $"\n<color=#006eff>ResetConfig:</color> <color=#f7ff9c>Resets the configuration variables to their default ones. (Not the same as \"reload\")</color>" +
-                            $"\n<color=#006eff>Toggle:</color> <color=#f7ff9c>Toggles the plugin's features on/off.</color>" +
-                            $"\n<color=#006eff>Version:</color> <color=#f7ff9c>Check the installed version of this plugin.</color>";
                     }
+                    ev.ReplyMessage =
+                        $"\n<color=#4ce300>--- [ TranqGun Help ] ---</color>" +
+                        $"\n<color=#006eff>Reload:</color> <color=#f7ff9c>Reloads the configuration variables. (Not the same as \"resetconfig\")</color>" +
+                        $"\n<color=#006eff>Protection:</color> <color=#f7ff9c>Grants you special protection against Tranquilizers.</color>" +
+                        $"\n<color=#006eff>ReplaceGuns:</color> <color=#f7ff9c>Replaces any COM-15s with Tranquilizers.</color>" +
+                        $"\n<color=#006eff>Sleep:</color> <color=#f7ff9c>Forces the sleep method on someone.</color>" +
+                        $"\n<color=#006eff>Setgun:</color> <color=#f7ff9c>The gun you're holding will now be the Tranquilizer.</color>" +
+                        $"\n<color=#006eff>AddGun:</color> <color=#f7ff9c>Add a Tranquilizer to your inventory.</color>" +
+                        $"\n<color=#006eff>ResetConfig:</color> <color=#f7ff9c>Resets the configuration variables to their default ones. (Not the same as \"reload\")</color>" +
+                        $"\n<color=#006eff>Toggle:</color> <color=#f7ff9c>Toggles the plugin's features on/off.</color>" +
+                        $"\n<color=#006eff>Version:</color> <color=#f7ff9c>Check the installed version of this plugin.</color>";
                 }
             } catch(Exception e) {
                 e.Print("OnCommand");

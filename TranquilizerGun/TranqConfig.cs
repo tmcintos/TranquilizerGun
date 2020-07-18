@@ -51,7 +51,7 @@ namespace TranquilizerGun {
 
         [Description("Broadcast shown when a player is trying to shoot but has no ammo.")]
         public ushort notEnoughAmmoBroadcastDuration { get; set; } = 3;
-        public string notEnoughAmmoBroadcast { get; set; } = "<color=red>You need at least %ammo for the bullet to fire!</color>";
+        public string notEnoughAmmoBroadcast { get; set; } = "<color=red>You need at least %ammo ammo for the bullet to fire!</color>";
 
         [Description("(This will be used later)")]
         public string shotsLeftHintText = "unused for now";
