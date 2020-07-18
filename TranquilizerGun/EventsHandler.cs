@@ -268,13 +268,10 @@ namespace TranquilizerGun {
                     }
                     ev.ReplyMessage =
                         $"\n<color=#4ce300>--- [ TranqGun Help ] ---</color>" +
-                        $"\n<color=#006eff>Reload:</color> <color=#f7ff9c>Reloads the configuration variables. (Not the same as \"resetconfig\")</color>" +
                         $"\n<color=#006eff>Protection:</color> <color=#f7ff9c>Grants you special protection against Tranquilizers.</color>" +
                         $"\n<color=#006eff>ReplaceGuns:</color> <color=#f7ff9c>Replaces any COM-15s with Tranquilizers.</color>" +
                         $"\n<color=#006eff>Sleep:</color> <color=#f7ff9c>Forces the sleep method on someone.</color>" +
-                        $"\n<color=#006eff>Setgun:</color> <color=#f7ff9c>The gun you're holding will now be the Tranquilizer.</color>" +
                         $"\n<color=#006eff>AddGun:</color> <color=#f7ff9c>Add a Tranquilizer to your inventory.</color>" +
-                        $"\n<color=#006eff>ResetConfig:</color> <color=#f7ff9c>Resets the configuration variables to their default ones. (Not the same as \"reload\")</color>" +
                         $"\n<color=#006eff>Toggle:</color> <color=#f7ff9c>Toggles the plugin's features on/off.</color>" +
                         $"\n<color=#006eff>Version:</color> <color=#f7ff9c>Check the installed version of this plugin.</color>";
                 }
