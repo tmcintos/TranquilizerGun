@@ -43,6 +43,9 @@ namespace TranquilizerGun {
             if((ev.Shooter.CurrentItem.id == ItemType.GunCOM15 && Config.comIsTranquilizer) 
                 || (ev.Shooter.CurrentItem.id == ItemType.GunUSP && Config.uspIsTranquilizer)) {
 
+                if(Config.silencerRequired && !ev.Shooter.ReferenceHub.HasSilencer())
+                    return;
+
                 if(ev.Shooter.CurrentItem.durability < Config.ammoUsedPerShot - 1) {
                     if(Config.notEnoughAmmoBroadcastDuration > 0) {
                         if(Config.clearBroadcasts)
@@ -74,7 +77,12 @@ namespace TranquilizerGun {
                     ev.Amount = 0;
                     return;
                 } else if(IsTranquilizerDamage(ev.DamageType) && !tranquilized.Contains(ev.Target.UserId)) {
-                    if(!IsTranquilizer(ev.Attacker.CurrentItem.id) && !ev.Attacker.ReferenceHub.HasSilencer()) return;
+                    if(!IsTranquilizer(ev.Attacker.CurrentItem.id)) return;
+
+                    // Added at the last minute lolz
+                    if(Config.silencerRequired && !ev.Attacker.ReferenceHub.HasSilencer())
+                        return;
+
                     string id = ev.Target.UserId;
                     if(Config.specialRoles.Keys.Contains(ev.Target.Role)) {
                         if(!scpShots.ContainsKey(id))
