@@ -79,6 +79,7 @@ namespace TranquilizerGun {
                 } else if(IsTranquilizerDamage(ev.DamageType) && !tranquilized.Contains(ev.Target.UserId)) {
                     if(!IsTranquilizer(ev.Attacker.CurrentItem.id)) return;
 
+                    ev.Amount = Config.a
                     // Added at the last minute lolz
                     if(Config.silencerRequired && !ev.Attacker.ReferenceHub.HasSilencer())
                         return;

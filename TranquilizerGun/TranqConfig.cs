@@ -32,6 +32,9 @@ namespace TranquilizerGun {
         [Description("How much ammo is used per shot.")]
         public int ammoUsedPerShot { get; set; } = 9;
 
+        [Description("How much damage does a Tranquilizer gun do.")]
+        public int tranquilizerDamage { get; set; } = 1;
+
         [Description("For how long will the players be put to sleep.")]
         public float sleepDurationMax { get; set; } = 3;
         public float sleepDurationMin { get; set; } = 5;
