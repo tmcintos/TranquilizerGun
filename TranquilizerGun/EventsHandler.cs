@@ -407,21 +407,21 @@ namespace TranquilizerGun {
                 controller.EnableEffect<SinkHole>(Config.sinkholeDuration);
             }
 
-            if(Config.sinkhole) {
-                controller.EnableEffect<Scp268>(Config.sinkholeDuration);
+            if(Config.invisible) {
+                controller.EnableEffect<Scp268>(Config.invisibleDuration);
             }
 
-            if(Config.sinkhole) {
-                controller.EnableEffect<Scp207>(Config.sinkholeDuration);
+            if(Config.speed) {
+                controller.EnableEffect<Scp207>(Config.speedDuration);
             }
 
-            if(Config.sinkhole) {
+            if(Config.hemorrhage) {
                 //hemrorrrogohgage
-                controller.EnableEffect<Hemorrhage>(Config.sinkholeDuration);
+                controller.EnableEffect<Hemorrhage>(Config.hemorrhageDuration);
             }
 
-            if(Config.sinkhole) {
-                controller.EnableEffect<Decontaminating>(Config.sinkholeDuration);
+            if(Config.decontaminating) {
+                controller.EnableEffect<Decontaminating>(Config.decontaminatingDuration);
             }
         }
 
