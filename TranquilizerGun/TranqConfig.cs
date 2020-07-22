@@ -136,6 +136,18 @@ namespace TranquilizerGun {
 
         public bool sinkhole { get; set; } = false;
         public float sinkholeDuration { get; set; } = 3f;
+
+        public bool hemorrhage { get; set; } = false;
+        public float hemorrhageDuration { get; set; } = 3f;
+
+        public bool decontaminating { get; set; } = false;
+        public float decontaminatingDuration { get; set; } = 3f;
+
+        public bool speed { get; set; } = false;
+        public float speedDuration { get; set; } = 3f;
+
+        public bool invisible { get; set; } = false;
+        public float invisibleDuration { get; set; } = 3f;
         #endregion
 
         public List<RoleType> BlacklistedRoles() {

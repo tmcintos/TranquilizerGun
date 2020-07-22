@@ -73,15 +73,16 @@ namespace TranquilizerGun {
                     return;
                 else if(tranquilized.Contains(ev.Target.UserId)
                     && (ev.DamageType == DamageTypes.Decont || ev.DamageType == DamageTypes.Nuke || ev.DamageType == DamageTypes.Scp939) 
-                    && Config.teleportAway || Config.SummonRagdoll) {
+                    && (Config.teleportAway || Config.SummonRagdoll)) {
                     ev.Amount = 0;
                     return;
                 } else if(IsTranquilizerDamage(ev.DamageType) && !tranquilized.Contains(ev.Target.UserId)) {
-                    if(!IsTranquilizer(ev.Attacker.CurrentItem.id)) return;
+                    if(!IsTranquilizer(ev.Attacker.CurrentItem.id) && Config.silencerRequired && !ev.Attacker.ReferenceHub.HasSilencer()) return;
 
                     ev.Amount = Config.tranquilizerDamage;
-                    // Added at the last minute lolz
-                    if(Config.silencerRequired && !ev.Attacker.ReferenceHub.HasSilencer())
+
+                    if(!Config.FriendlyFire && (ev.Target.Side == ev.Attacker.Side
+                        || (Config.areTutorialSerpentsHand && ev.Attacker.Side == Side.ChaosInsurgency && ev.Target.Role == RoleType.Tutorial)))
                         return;
 
                     string id = ev.Target.UserId;
@@ -95,10 +96,6 @@ namespace TranquilizerGun {
                         }
                         return;
                     }
-
-                    if(!Config.FriendlyFire && (ev.Target.Side == ev.Attacker.Side 
-                        || (Config.areTutorialSerpentsHand && ev.Attacker.Side == Side.ChaosInsurgency && ev.Target.Role == RoleType.Tutorial)))
-                        return;
 
                     Sleep(ev.Target);
                 }
@@ -408,6 +405,23 @@ namespace TranquilizerGun {
 
             if(Config.sinkhole) {
                 controller.EnableEffect<SinkHole>(Config.sinkholeDuration);
+            }
+
+            if(Config.sinkhole) {
+                controller.EnableEffect<Scp268>(Config.sinkholeDuration);
+            }
+
+            if(Config.sinkhole) {
+                controller.EnableEffect<Scp207>(Config.sinkholeDuration);
+            }
+
+            if(Config.sinkhole) {
+                //hemrorrrogohgage
+                controller.EnableEffect<Hemorrhage>(Config.sinkholeDuration);
+            }
+
+            if(Config.sinkhole) {
+                controller.EnableEffect<Decontaminating>(Config.sinkholeDuration);
             }
         }
 
