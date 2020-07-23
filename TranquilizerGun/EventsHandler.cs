@@ -61,6 +61,8 @@ namespace TranquilizerGun {
 
         public void OnPickupEvent(PickingUpItemEventArgs ev) {
             if(IsTranquilizer(ev.Pickup.ItemId) && Config.pickedUpBroadcastDuration > 0) {
+                if(Config.silencerRequired && !ev.Player.ReferenceHub.HasSilencer())
+                    return;
                 if(Config.clearBroadcasts)
                     ev.Player.ClearBroadcasts();
                 ev.Player.Broadcast(Config.pickedUpBroadcastDuration, Config.pickedUpBroadcast.Replace("%ammo", $"{Config.ammoUsedPerShot}"));
@@ -310,14 +312,14 @@ namespace TranquilizerGun {
                         oldPos, player.GameObject.transform.rotation, player.ReferenceHub.playerMovementSync.PlayerVelocity,
                         (int) player.Role, hitInfo, false, player.Nickname, player.Nickname, 0);
                     
-
-                    // Apply effects
-                    controller.EnableEffect<Amnesia>(sleepDuration);
-                    controller.EnableEffect<Scp268>(sleepDuration);
                 }
 
                 if(Config.teleportAway) {
-                    player.Position = Config.newPos;
+                    // Apply effects
+                    controller.EnableEffect<Amnesia>(sleepDuration);
+                    controller.EnableEffect<Scp268>(sleepDuration);
+
+                    player.Position = new Vector3(Config.newPos_x, Config.newPos_y, Config.newPos_z);
                 }
 
                 Timing.CallDelayed(sleepDuration, () => Wake(player, oldPos));
@@ -339,6 +341,7 @@ namespace TranquilizerGun {
                 }
 
                 if(Config.teleportAway) {
+                    player.ReferenceHub.playerEffectsController.DisableEffect<Decontaminating>();
                     player.Position = oldPos;
 
                     if(Warhead.IsDetonated) {
@@ -421,7 +424,7 @@ namespace TranquilizerGun {
             }
 
             if(Config.decontaminating) {
-                controller.EnableEffect<Decontaminating>(Config.decontaminatingDuration);
+                controller.EnableEffect<Decontaminating>(Config.decontaminatingDuration, true);
             }
         }
 

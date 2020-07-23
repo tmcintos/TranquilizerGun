@@ -46,11 +46,11 @@ namespace TranquilizerGun {
 
         [Description("Broadcast shown when the player is shot with a Tranquilizer. (Using %seconds in the text will be replaced by how many seconds the player will sleep for.")]
         public ushort tranquilizedBroadcastDuration { get; set; } = 3;
-        public string tranquilizedBroadcast { get; set; } = "<color=red>You fell asleep...</color>";
+        public string tranquilizedBroadcast { get; set; } = "<color=red>You've been shot with a Tranquilizer...</color>";
 
         [Description("Broadcast shown when a Tranquilizer is picked up.")]
         public ushort pickedUpBroadcastDuration { get; set; } = 3;
-        public string pickedUpBroadcast { get; set; } = "<color=green><b>You picked up a tranquilizer gun!</b></color> \nEvery shot uses %ammo ammo, so count your bullets!";
+        public string pickedUpBroadcast { get; set; } = "'<color=green><b>You picked up a tranquilizer gun!</b></color> \nEvery shot uses %ammo ammo, so count your bullets!'";
 
         [Description("Broadcast shown when a player is trying to shoot but has no ammo.")]
         public ushort notEnoughAmmoBroadcastDuration { get; set; } = 3;
@@ -66,7 +66,9 @@ namespace TranquilizerGun {
         public bool FriendlyFire { get; set; } = true;
 
         [Description("Where players are teleported when they are put to sleep. (usingEffects must be disabled)")]
-        public Vector3 newPos { get; set; } = new Vector3(2, -2, 3);
+        public float newPos_x { get; set; } = 2;
+        public float newPos_y { get; set; } = -2;
+        public float newPos_z { get; set; } = 3;
 
         [Description("Whether the player will be teleported away.")]
         public bool teleportAway { get; set; } = true;
