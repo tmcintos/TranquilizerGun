@@ -23,8 +23,6 @@ namespace TranquilizerGun {
         bool allArmorEnabled = false;
         public TranqConfig Config;
 
-        public string password = "getagirlfriend";
-
         public EventsHandler(Plugin plugin) {
             this.plugin = plugin;
             tranquilized = new List<string>();
