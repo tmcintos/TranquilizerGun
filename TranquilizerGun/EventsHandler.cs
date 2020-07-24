@@ -38,22 +38,26 @@ namespace TranquilizerGun {
         public void RoundStart() => Timing.RunCoroutine(DelayedReplace());
 
         public void ShootEvent(ShootingEventArgs ev) {
-            if((ev.Shooter.CurrentItem.id == ItemType.GunCOM15 && Config.comIsTranquilizer) 
-                || (ev.Shooter.CurrentItem.id == ItemType.GunUSP && Config.uspIsTranquilizer)) {
+            try {
+                if((ev.Shooter.CurrentItem.id == ItemType.GunCOM15 && Config.comIsTranquilizer)
+                    || (ev.Shooter.CurrentItem.id == ItemType.GunUSP && Config.uspIsTranquilizer)) {
 
-                if(Config.silencerRequired && !ev.Shooter.ReferenceHub.HasSilencer())
-                    return;
+                    if(Config.silencerRequired && !ev.Shooter.ReferenceHub.HasSilencer())
+                        return;
 
-                if(ev.Shooter.CurrentItem.durability < Config.ammoUsedPerShot - 1) {
-                    if(Config.notEnoughAmmoBroadcastDuration > 0) {
-                        if(Config.clearBroadcasts)
-                            ev.Shooter.ClearBroadcasts();
-                        ev.Shooter.Broadcast(Config.notEnoughAmmoBroadcastDuration, Config.notEnoughAmmoBroadcast.Replace("%ammo", $"{Config.ammoUsedPerShot}"));
+                    if(ev.Shooter.CurrentItem.durability < Config.ammoUsedPerShot - 1) {
+                        if(Config.notEnoughAmmoBroadcastDuration > 0) {
+                            if(Config.clearBroadcasts)
+                                ev.Shooter.ClearBroadcasts();
+                            ev.Shooter.Broadcast(Config.notEnoughAmmoBroadcastDuration, Config.notEnoughAmmoBroadcast.Replace("%ammo", $"{Config.ammoUsedPerShot}"));
+                        }
+                        ev.IsAllowed = false;
+                        return;
                     }
-                    ev.IsAllowed = false;
-                    return;
-                }    
-                ev.Shooter.RemoveWeaponAmmo(Config.ammoUsedPerShot - 1);
+                    ev.Shooter.RemoveWeaponAmmo(Config.ammoUsedPerShot - 1);
+                }
+            } catch(Exception e) {
+                e.Print("ShootEvent");
             }
         }
 
