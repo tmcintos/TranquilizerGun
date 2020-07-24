@@ -318,6 +318,7 @@ namespace TranquilizerGun {
                     controller.EnableEffect<Scp268>(sleepDuration);
 
                     player.Position = new Vector3(Config.newPos_x, Config.newPos_y, Config.newPos_z);
+                    Timing.CallDelayed(1f, () => player.ReferenceHub.playerEffectsController.DisableEffect<Decontaminating>());
                 }
 
                 Timing.CallDelayed(sleepDuration, () => Wake(player, oldPos));

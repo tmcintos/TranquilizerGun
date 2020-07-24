@@ -70,11 +70,11 @@ namespace TranquilizerGun {
         public float newPos_y { get; set; } = -2;
         public float newPos_z { get; set; } = 3;
 
-        [Description("Whether the player will be teleported away.")]
-        public bool teleportAway { get; set; } = true;
+        [Description("Whether the player will be teleported away. (This + the effect below will give the effect that the old Tranquilizer had). (This will also apply Amnesia + Invisibility effects for the duration of the sleep effect)")]
+        public bool teleportAway { get; set; } = false;
 
-        [Description("Whether a Ragdoll is summoned and Amnesia + Invisibility effect is applied.")]
-        public bool SummonRagdoll { get; set; } = true;
+        [Description("Whether a Ragdoll is summoned when you're tranquilized.")]
+        public bool SummonRagdoll { get; set; } = false;
 
         [Description("Should the player's inventory be dropped when shot.")]
         public bool dropItems { get; set; } = false;
@@ -101,10 +101,10 @@ namespace TranquilizerGun {
 
         #region PlayerEffects
         [Description("Whether the effects below will be used when the player is shot by a Tranquilizer.")]
-        public bool usingEffects { get; set; } = false;
+        public bool usingEffects { get; set; } = true;
 
-        public bool amnesia { get; set; } = false;
-        public float amnesiaDuration { get; set; } = 3f;
+        public bool amnesia { get; set; } = true;
+        public float amnesiaDuration { get; set; } = 2f;
 
         public bool disabled { get; set; } = false;
         public float disabledDuration { get; set; } = 3f;
@@ -121,8 +121,8 @@ namespace TranquilizerGun {
         public bool deafened { get; set; } = false;
         public float deafenedDuration { get; set; } = 3f;
 
-        public bool ensnared { get; set; } = false;
-        public float ensnaredDuration { get; set; } = 3f;
+        public bool ensnared { get; set; } = true;
+        public float ensnaredDuration { get; set; } = 1f;
 
         public bool bleeding { get; set; } = false;
         public float bleedingDuration { get; set; } = 3f;
@@ -136,7 +136,7 @@ namespace TranquilizerGun {
         public bool exhausted { get; set; } = false;
         public float exhaustedDuration { get; set; } = 3f;
 
-        public bool sinkhole { get; set; } = false;
+        public bool sinkhole { get; set; } = true;
         public float sinkholeDuration { get; set; } = 3f;
 
         public bool hemorrhage { get; set; } = false;
