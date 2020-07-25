@@ -15,7 +15,7 @@ namespace TranquilizerGun {
         public override string Prefix => "tranquilizergun";
         public override string Name => "TranquilizerGun";
         public override string Author => "Beryl";
-        public override Version Version { get; } = new Version(2, 0);
+        public override Version Version { get; } = new Version(2, 1, 1);
         public override Version RequiredExiledVersion { get; } = new Version(2, 0, 0);
 
         public EventsHandler handler;
