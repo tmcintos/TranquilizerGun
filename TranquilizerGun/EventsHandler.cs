@@ -27,12 +27,14 @@ namespace TranquilizerGun {
             this.plugin = plugin;
             tranquilized = new List<string>();
             armored = new List<string>();
+            scpShots = new Dictionary<string, int>();
             Config = plugin.Config;
         }
 
         public void RoundEnd() {
             tranquilized.Clear();
             armored.Clear();
+            scpShots.Clear();
         }
 
         public void RoundStart() => Timing.RunCoroutine(DelayedReplace());
