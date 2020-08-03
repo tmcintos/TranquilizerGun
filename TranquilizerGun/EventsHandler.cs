@@ -20,7 +20,7 @@ namespace TranquilizerGun {
         private Plugin plugin;
         public List<string> tranquilized, armored;
         public Dictionary<string, int> scpShots;
-        bool allArmorEnabled = false;
+        bool allArmorEnabled = false, testFix;
         public TranqConfig Config;
 
         public EventsHandler(Plugin plugin) {
@@ -35,11 +35,18 @@ namespace TranquilizerGun {
             tranquilized.Clear();
             armored.Clear();
             scpShots.Clear();
+
+            testFix = true;
         }
 
-        public void RoundStart() => Timing.RunCoroutine(DelayedReplace());
+        public void RoundStart() {
+            Timing.RunCoroutine(DelayedReplace());
+            testFix = false;
+        } 
 
         public void ShootEvent(ShootingEventArgs ev) {
+            if(testFix)
+                return;
             try {
                 if((ev.Shooter.CurrentItem.id == ItemType.GunCOM15 && Config.comIsTranquilizer)
                     || (ev.Shooter.CurrentItem.id == ItemType.GunUSP && Config.uspIsTranquilizer)) {
@@ -338,7 +345,7 @@ namespace TranquilizerGun {
             try {
                 tranquilized.Remove(player.UserId);
 
-                if(!Config.usingEffects)
+                if(!Config.SummonRagdoll)
                 foreach(Ragdoll doll in Object.FindObjectsOfType<Ragdoll>()) {
                     if(doll.owner.ownerHLAPI_id == player.Nickname) {
                         NetworkServer.Destroy(doll.gameObject);
