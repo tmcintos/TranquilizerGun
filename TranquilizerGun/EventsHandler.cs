@@ -31,7 +31,7 @@ namespace TranquilizerGun {
             Config = plugin.Config;
         }
 
-        public void RoundEnd() {
+        public void RoundEnd(RoundEndedEventArgs ev) {
             tranquilized.Clear();
             armored.Clear();
             scpShots.Clear();
@@ -45,6 +45,7 @@ namespace TranquilizerGun {
         } 
 
         public void ShootEvent(ShootingEventArgs ev) {
+            // I know this is a lazy fix, don't ree at me about it, I'm trying to fix my sleeping schedule and other projects so haven't got much time to find the cause of the Exception this week, prob will actually fix it soon 
             if(testFix)
                 return;
             try {

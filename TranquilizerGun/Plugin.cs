@@ -56,6 +56,7 @@ namespace TranquilizerGun {
             Player.Shooting += handler.ShootEvent;
             Player.Hurting += handler.HurtEvent;
             Server.RoundStarted += handler.RoundStart;
+            Server.RoundEnded += handler.RoundEnd;
         }
 
         public void UnregisterEvents() {
@@ -63,6 +64,7 @@ namespace TranquilizerGun {
             Player.Shooting -= handler.ShootEvent;
             Player.Hurting -= handler.HurtEvent;
             Server.RoundStarted -= handler.RoundStart;
+            Server.RoundEnded -= handler.RoundEnd;
         }
 
     }
