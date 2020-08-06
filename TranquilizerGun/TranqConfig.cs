@@ -44,6 +44,9 @@ namespace TranquilizerGun {
         [Description("Whether broadcasts are cleared before doing one.")]
         public bool clearBroadcasts { get; set; } = true;
 
+        [Description("Whether to use the new SCP:SL Hints System over broadcasts (The same variables below are used)")]
+        public bool UseHintsSystem { get; set; } = false;
+
         [Description("Broadcast shown when the player is shot with a Tranquilizer. (Using %seconds in the text will be replaced by how many seconds the player will sleep for.")]
         public ushort tranquilizedBroadcastDuration { get; set; } = 3;
         public string tranquilizedBroadcast { get; set; } = "<color=red>You've been shot with a Tranquilizer...</color>";
@@ -55,9 +58,6 @@ namespace TranquilizerGun {
         [Description("Broadcast shown when a player is trying to shoot but has no ammo.")]
         public ushort notEnoughAmmoBroadcastDuration { get; set; } = 3;
         public string notEnoughAmmoBroadcast { get; set; } = "<color=red>You need at least %ammo ammo for the bullet to fire!</color>";
-
-        [Description("(This will be used later)")]
-        public string shotsLeftHintText = "unused for now";
 
         #endregion
 

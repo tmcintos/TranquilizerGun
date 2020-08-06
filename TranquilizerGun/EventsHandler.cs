@@ -52,14 +52,16 @@ namespace TranquilizerGun {
                 if((ev.Shooter.CurrentItem.id == ItemType.GunCOM15 && Config.comIsTranquilizer)
                     || (ev.Shooter.CurrentItem.id == ItemType.GunUSP && Config.uspIsTranquilizer)) {
 
-                    if(Config.silencerRequired && !ev.Shooter.ReferenceHub.HasSilencer())
+                    if(Config.silencerRequired && !ev.Shooter.HasSilencer())
                         return;
 
                     if(ev.Shooter.CurrentItem.durability < Config.ammoUsedPerShot - 1) {
                         if(Config.notEnoughAmmoBroadcastDuration > 0) {
                             if(Config.clearBroadcasts)
                                 ev.Shooter.ClearBroadcasts();
-                            ev.Shooter.Broadcast(Config.notEnoughAmmoBroadcastDuration, Config.notEnoughAmmoBroadcast.Replace("%ammo", $"{Config.ammoUsedPerShot}"));
+                            if(Config.UseHintsSystem)
+                                ev.Shooter.ShowHint(Config.notEnoughAmmoBroadcastDuration, Config.notEnoughAmmoBroadcast.Replace("%ammo", $"{Config.ammoUsedPerShot}"));
+                            else ev.Shooter.Broadcast(Config.notEnoughAmmoBroadcastDuration, Config.notEnoughAmmoBroadcast.Replace("%ammo", $"{Config.ammoUsedPerShot}"));
                         }
                         ev.IsAllowed = false;
                         return;
@@ -73,11 +75,14 @@ namespace TranquilizerGun {
 
         public void OnPickupEvent(PickingUpItemEventArgs ev) {
             if(IsTranquilizer(ev.Pickup.ItemId) && Config.pickedUpBroadcastDuration > 0) {
-                if(Config.silencerRequired && !ev.Player.ReferenceHub.HasSilencer())
+                if(Config.silencerRequired && !ev.Pickup.ItemId.IsPistol() && ev.Pickup.weaponMods.Barrel != 1)
                     return;
                 if(Config.clearBroadcasts)
                     ev.Player.ClearBroadcasts();
-                ev.Player.Broadcast(Config.pickedUpBroadcastDuration, Config.pickedUpBroadcast.Replace("%ammo", $"{Config.ammoUsedPerShot}"));
+                if(Config.UseHintsSystem)
+                    ev.Player.ShowHint(Config.pickedUpBroadcastDuration, Config.pickedUpBroadcast.Replace("%ammo", $"{Config.ammoUsedPerShot}"));
+                else
+                    ev.Player.Broadcast(Config.pickedUpBroadcastDuration, Config.pickedUpBroadcast.Replace("%ammo", $"{Config.ammoUsedPerShot}"));
             }
         }
 
@@ -91,7 +96,7 @@ namespace TranquilizerGun {
                     ev.Amount = 0;
                     return;
                 } else if(IsTranquilizerDamage(ev.DamageType) && !tranquilized.Contains(ev.Target.UserId)) {
-                    if(!IsTranquilizer(ev.Attacker.CurrentItem.id) && Config.silencerRequired && !ev.Attacker.ReferenceHub.HasSilencer()) return;
+                    if(!IsTranquilizer(ev.Attacker.CurrentItem.id) && Config.silencerRequired && !ev.Attacker.HasSilencer()) return;
 
                     ev.Amount = Config.tranquilizerDamage;
 
@@ -305,7 +310,9 @@ namespace TranquilizerGun {
                 if(Config.tranquilizedBroadcastDuration > 0) {
                     if(Config.clearBroadcasts)
                         player.ClearBroadcasts();
-                    player.Broadcast(Config.tranquilizedBroadcastDuration, Config.tranquilizedBroadcast.Replace("%seconds", ((int) sleepDuration).ToString()));
+                    if(Config.UseHintsSystem)
+                        player.ShowHint(Config.tranquilizedBroadcastDuration, Config.tranquilizedBroadcast.Replace("%seconds", ((int) sleepDuration).ToString()));
+                    else player.Broadcast(Config.tranquilizedBroadcastDuration, Config.tranquilizedBroadcast.Replace("%seconds", ((int) sleepDuration).ToString()));
                     
                 }
 
@@ -346,7 +353,7 @@ namespace TranquilizerGun {
             try {
                 tranquilized.Remove(player.UserId);
 
-                if(!Config.SummonRagdoll)
+                if(Config.SummonRagdoll)
                 foreach(Ragdoll doll in Object.FindObjectsOfType<Ragdoll>()) {
                     if(doll.owner.ownerHLAPI_id == player.Nickname) {
                         NetworkServer.Destroy(doll.gameObject);

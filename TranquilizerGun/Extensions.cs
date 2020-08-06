@@ -8,18 +8,16 @@ using Exiled.API.Features;
 namespace TranquilizerGun {
     public static class Extensions {
 		// uniq = unique id - modBarrel == 1 = silencer
-		public static bool HasSilencer(this ReferenceHub hub) {
+		public static bool HasSilencer(this Player p) {
 			try {
-				if(hub.inventory == null || hub.weaponManager == null || hub.weaponManager.curWeapon < 0 ||
-					hub.weaponManager.curWeapon >= hub.weaponManager.weapons.Length || !hub.inventory.GetItemInHand().id.IsPistol())
-					return false;
-				else if(hub.inventory.GetItemInHand().modBarrel == 1)
-					return true;
+				return p.CurrentItemIndex > 0 && p.CurrentItem.id.IsPistol() && p.CurrentItem.modBarrel == 1;
 			} catch(Exception e) {
 				e.Print("HasSilencer");
 			}	
 			return false;
 		}
+
+		public static void ShowHint(this Player p, float duration, string text) => p.ShowHint(text, duration);
 
 		public static void RemoveWeaponAmmo(this Player player, int amount) {
 			player.Inventory.items.ModifyDuration(
