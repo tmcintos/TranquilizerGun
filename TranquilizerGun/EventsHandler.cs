@@ -305,6 +305,7 @@ namespace TranquilizerGun {
                 PlayerEffectsController controller = player.ReferenceHub.playerEffectsController;
                 tranquilized.Add(player.Nickname);
                 float sleepDuration = UnityEngine.Random.Range(Config.sleepDurationMin, Config.sleepDurationMax);
+                bool pd = controller.GetEffect<Corroding>().Enabled;
 
                 // Broadcast message (if enabled)
                 if(Config.tranquilizedBroadcastDuration > 0) {
@@ -342,14 +343,14 @@ namespace TranquilizerGun {
                     Timing.CallDelayed(1f, () => player.ReferenceHub.playerEffectsController.DisableEffect<Decontaminating>());
                 }
 
-                Timing.CallDelayed(sleepDuration, () => Wake(player, oldPos));
+                Timing.CallDelayed(sleepDuration, () => Wake(player, oldPos, pd));
 
             } catch(Exception e) {
                 e.Print($"Sleeping {player.Nickname} {e.StackTrace}");
             }
         }
 
-        public void Wake(Player player, Vector3 oldPos) {
+        public void Wake(Player player, Vector3 oldPos, bool inPd = false) {
             try {
                 tranquilized.Remove(player.UserId);
 
@@ -363,6 +364,9 @@ namespace TranquilizerGun {
                 if(Config.teleportAway) {
                     player.ReferenceHub.playerEffectsController.DisableEffect<Decontaminating>();
                     player.Position = oldPos;
+
+                    if(inPd)
+                        player.ReferenceHub.playerEffectsController.EnableEffect<Corroding>();
 
                     if(Warhead.IsDetonated) {
                         if(player.CurrentRoom.Zone != ZoneType.Entrance)
