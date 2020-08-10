@@ -304,8 +304,8 @@ namespace TranquilizerGun {
                 Vector3 oldPos = player.Position;
                 PlayerEffectsController controller = player.ReferenceHub.playerEffectsController;
                 tranquilized.Add(player.Nickname);
-                float sleepDuration = UnityEngine.Random.Range(Config.sleepDurationMin, Config.sleepDurationMax);
-                bool pd = controller.GetEffect<Corroding>().Enabled;
+                float sleepDuration = UnityEngine.Random.Range(Config.sleepDurationMin, Config.sleepDurationMax), bdd = controller.GetEffect<Bleeding>().Duration;
+                bool pd = controller.GetEffect<Corroding>().Enabled, bd = controller.GetEffect<Bleeding>().Enabled;
 
                 // Broadcast message (if enabled)
                 if(Config.tranquilizedBroadcastDuration > 0) {
@@ -343,14 +343,14 @@ namespace TranquilizerGun {
                     Timing.CallDelayed(1f, () => player.ReferenceHub.playerEffectsController.DisableEffect<Decontaminating>());
                 }
 
-                Timing.CallDelayed(sleepDuration, () => Wake(player, oldPos, pd));
+                Timing.CallDelayed(sleepDuration, () => Wake(player, oldPos, pd, bd, bdd));
 
             } catch(Exception e) {
                 e.Print($"Sleeping {player.Nickname} {e.StackTrace}");
             }
         }
 
-        public void Wake(Player player, Vector3 oldPos, bool inPd = false) {
+        public void Wake(Player player, Vector3 oldPos, bool inPd = false, bool bleeding = false, float bleedingDur = 3) {
             try {
                 tranquilized.Remove(player.UserId);
 
@@ -367,6 +367,9 @@ namespace TranquilizerGun {
 
                     if(inPd)
                         player.ReferenceHub.playerEffectsController.EnableEffect<Corroding>();
+
+                    if(bleeding)
+                        player.ReferenceHub.playerEffectsController.EnableEffect<Bleeding>(bleedingDur);
 
                     if(Warhead.IsDetonated) {
                         if(player.CurrentRoom.Zone != ZoneType.Entrance)
