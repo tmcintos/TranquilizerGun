@@ -21,14 +21,12 @@ namespace TranquilizerGun {
         public List<string> tranquilized, armored;
         public Dictionary<string, int> scpShots;
         bool allArmorEnabled = false, testFix;
-        public TranqConfig Config;
 
         public EventsHandler(Plugin plugin) {
             this.plugin = plugin;
             tranquilized = new List<string>();
             armored = new List<string>();
             scpShots = new Dictionary<string, int>();
-            Config = plugin.Config;
         }
 
         public void RoundEnd(RoundEndedEventArgs ev) {
@@ -49,24 +47,24 @@ namespace TranquilizerGun {
             if(testFix)
                 return;
             try {
-                if((ev.Shooter.CurrentItem.id == ItemType.GunCOM15 && Config.comIsTranquilizer)
-                    || (ev.Shooter.CurrentItem.id == ItemType.GunUSP && Config.uspIsTranquilizer)) {
+                if((ev.Shooter.CurrentItem.id == ItemType.GunCOM15 && plugin.Config.comIsTranquilizer)
+                    || (ev.Shooter.CurrentItem.id == ItemType.GunUSP && plugin.Config.uspIsTranquilizer)) {
 
-                    if(Config.silencerRequired && !ev.Shooter.HasSilencer())
+                    if(plugin.Config.silencerRequired && !ev.Shooter.HasSilencer())
                         return;
 
-                    if(ev.Shooter.CurrentItem.durability < Config.ammoUsedPerShot - 1) {
-                        if(Config.notEnoughAmmoBroadcastDuration > 0) {
-                            if(Config.clearBroadcasts)
+                    if(ev.Shooter.CurrentItem.durability < plugin.Config.ammoUsedPerShot - 1) {
+                        if(plugin.Config.notEnoughAmmoBroadcastDuration > 0) {
+                            if(plugin.Config.clearBroadcasts)
                                 ev.Shooter.ClearBroadcasts();
-                            if(Config.UseHintsSystem)
-                                ev.Shooter.ShowHint(Config.notEnoughAmmoBroadcastDuration, Config.notEnoughAmmoBroadcast.Replace("%ammo", $"{Config.ammoUsedPerShot}"));
-                            else ev.Shooter.Broadcast(Config.notEnoughAmmoBroadcastDuration, Config.notEnoughAmmoBroadcast.Replace("%ammo", $"{Config.ammoUsedPerShot}"));
+                            if(plugin.Config.UseHintsSystem)
+                                ev.Shooter.ShowHint(plugin.Config.notEnoughAmmoBroadcastDuration, plugin.Config.notEnoughAmmoBroadcast.Replace("%ammo", $"{plugin.Config.ammoUsedPerShot}"));
+                            else ev.Shooter.Broadcast(plugin.Config.notEnoughAmmoBroadcastDuration, plugin.Config.notEnoughAmmoBroadcast.Replace("%ammo", $"{plugin.Config.ammoUsedPerShot}"));
                         }
                         ev.IsAllowed = false;
                         return;
                     }
-                    ev.Shooter.RemoveWeaponAmmo(Config.ammoUsedPerShot - 1);
+                    ev.Shooter.RemoveWeaponAmmo(plugin.Config.ammoUsedPerShot - 1);
                 }
             } catch(Exception e) {
                 e.Print("ShootEvent");
@@ -74,42 +72,42 @@ namespace TranquilizerGun {
         }
 
         public void OnPickupEvent(PickingUpItemEventArgs ev) {
-            if(IsTranquilizer(ev.Pickup.ItemId) && Config.pickedUpBroadcastDuration > 0) {
-                if(Config.silencerRequired && !ev.Pickup.ItemId.IsPistol() && ev.Pickup.weaponMods.Barrel != 1)
+            if(IsTranquilizer(ev.Pickup.ItemId) && plugin.Config.pickedUpBroadcastDuration > 0) {
+                if(!ev.Pickup.ItemId.IsPistol() || (plugin.Config.silencerRequired && ev.Pickup.weaponMods.Barrel != 1))
                     return;
-                if(Config.clearBroadcasts)
+                if(plugin.Config.clearBroadcasts)
                     ev.Player.ClearBroadcasts();
-                if(Config.UseHintsSystem)
-                    ev.Player.ShowHint(Config.pickedUpBroadcastDuration, Config.pickedUpBroadcast.Replace("%ammo", $"{Config.ammoUsedPerShot}"));
+                if(plugin.Config.UseHintsSystem)
+                    ev.Player.ShowHint(plugin.Config.pickedUpBroadcastDuration, plugin.Config.pickedUpBroadcast.Replace("%ammo", $"{plugin.Config.ammoUsedPerShot}"));
                 else
-                    ev.Player.Broadcast(Config.pickedUpBroadcastDuration, Config.pickedUpBroadcast.Replace("%ammo", $"{Config.ammoUsedPerShot}"));
+                    ev.Player.Broadcast(plugin.Config.pickedUpBroadcastDuration, plugin.Config.pickedUpBroadcast.Replace("%ammo", $"{plugin.Config.ammoUsedPerShot}"));
             }
         }
 
         public void HurtEvent(HurtingEventArgs ev) {
             try {
-                if(ev.Attacker == null || ev.Attacker == ev.Target || Config.roleBlacklist.Contains(ev.Target.Role))
+                if(ev.Attacker == null || ev.Attacker == ev.Target || plugin.Config.roleBlacklist.Contains(ev.Target.Role))
                     return;
                 else if(tranquilized.Contains(ev.Target.UserId)
                     && (ev.DamageType == DamageTypes.Decont || ev.DamageType == DamageTypes.Nuke || ev.DamageType == DamageTypes.Scp939) 
-                    && (Config.teleportAway || Config.SummonRagdoll)) {
+                    && (plugin.Config.teleportAway || plugin.Config.SummonRagdoll)) {
                     ev.Amount = 0;
                     return;
                 } else if(IsTranquilizerDamage(ev.DamageType) && !tranquilized.Contains(ev.Target.UserId)) {
-                    if(!IsTranquilizer(ev.Attacker.CurrentItem.id) && Config.silencerRequired && !ev.Attacker.HasSilencer()) return;
+                    if(!IsTranquilizer(ev.Attacker.CurrentItem.id) && plugin.Config.silencerRequired && !ev.Attacker.HasSilencer()) return;
 
-                    ev.Amount = Config.tranquilizerDamage;
+                    ev.Amount = plugin.Config.tranquilizerDamage;
 
-                    if(!Config.FriendlyFire && (ev.Target.Side == ev.Attacker.Side
-                        || (Config.areTutorialSerpentsHand && ev.Attacker.Side == Side.ChaosInsurgency && ev.Target.Role == RoleType.Tutorial)))
+                    if(!plugin.Config.FriendlyFire && (ev.Target.Side == ev.Attacker.Side
+                        || (plugin.Config.areTutorialSerpentsHand && ev.Attacker.Side == Side.ChaosInsurgency && ev.Target.Role == RoleType.Tutorial)))
                         return;
 
                     string id = ev.Target.UserId;
-                    if(Config.specialRoles.Keys.Contains(ev.Target.Role)) {
+                    if(plugin.Config.specialRoles.Keys.Contains(ev.Target.Role)) {
                         if(!scpShots.ContainsKey(id))
                             scpShots.Add(id, 0);
                         scpShots[id] += 1;
-                        if(scpShots[id] >= Config.specialRoles[ev.Target.Role]) {
+                        if(scpShots[id] >= plugin.Config.specialRoles[ev.Target.Role]) {
                             Sleep(ev.Target);
                             scpShots[id] = 0;
                         }
@@ -131,7 +129,7 @@ namespace TranquilizerGun {
 
                 string cmd = ev.Name.ToLower();
                 Player sender = ev.Sender;
-                // reload / protect / replaceguns / toggle / sleep / version / setgun / addgun / defaultconfig
+                // reload / protect / replaceguns / toggle / sleep / version / setgun / addgun / defaultplugin.Config
 
                 if(cmd.Equals("tg") || cmd.Equals("tgun") || cmd.Equals("tranqgun") || cmd.Equals("tranquilizergun")) {
                     ev.IsAllowed = false;
@@ -185,7 +183,7 @@ namespace TranquilizerGun {
                                 int a = 0;
 
                                 foreach(Pickup item in Object.FindObjectsOfType<Pickup>()) {
-                                    if(item.ItemId == ItemType.GunCOM15 && UnityEngine.Random.Range(1, 100) <= Config.replaceChance) {
+                                    if(item.ItemId == ItemType.GunCOM15 && UnityEngine.Random.Range(1, 100) <= plugin.Config.replaceChance) {
                                         ItemType.GunUSP.Spawn(18, item.Networkposition + new Vector3(0, 1, 0), default, 0, 1, 0);
                                         item.Delete();
                                     }
@@ -271,13 +269,13 @@ namespace TranquilizerGun {
                                     ev.ReplyMessage = "<color=red>Permission denied.</color>";
                                     return;
                                 }
-                                if(Config.IsEnabledCustom) {
+                                if(plugin.Config.IsEnabledCustom) {
                                     plugin.UnregisterEvents();
-                                    Config.IsEnabledCustom = false;
+                                    plugin.Config.IsEnabledCustom = false;
                                     ev.ReplyMessage = $"<color=#4ce300>The plugin has now been disabled!</color>";
                                 } else {
                                     plugin.RegisterEvents();
-                                    Config.IsEnabledCustom = true;
+                                    plugin.Config.IsEnabledCustom = true;
                                     ev.ReplyMessage = $"<color=#4ce300>The plugin has now been enabled!</color>";
                                 }
                                 return;
@@ -304,27 +302,27 @@ namespace TranquilizerGun {
                 Vector3 oldPos = player.Position;
                 PlayerEffectsController controller = player.ReferenceHub.playerEffectsController;
                 tranquilized.Add(player.Nickname);
-                float sleepDuration = UnityEngine.Random.Range(Config.sleepDurationMin, Config.sleepDurationMax), bdd = controller.GetEffect<Bleeding>().Duration;
+                float sleepDuration = UnityEngine.Random.Range(plugin.Config.sleepDurationMin, plugin.Config.sleepDurationMax), bdd = controller.GetEffect<Bleeding>().Duration;
                 bool pd = controller.GetEffect<Corroding>().Enabled, bd = controller.GetEffect<Bleeding>().Enabled;
 
                 // Broadcast message (if enabled)
-                if(Config.tranquilizedBroadcastDuration > 0) {
-                    if(Config.clearBroadcasts)
+                if(plugin.Config.tranquilizedBroadcastDuration > 0) {
+                    if(plugin.Config.clearBroadcasts)
                         player.ClearBroadcasts();
-                    if(Config.UseHintsSystem)
-                        player.ShowHint(Config.tranquilizedBroadcastDuration, Config.tranquilizedBroadcast.Replace("%seconds", ((int) sleepDuration).ToString()));
-                    else player.Broadcast(Config.tranquilizedBroadcastDuration, Config.tranquilizedBroadcast.Replace("%seconds", ((int) sleepDuration).ToString()));
+                    if(plugin.Config.UseHintsSystem)
+                        player.ShowHint(plugin.Config.tranquilizedBroadcastDuration, plugin.Config.tranquilizedBroadcast.Replace("%seconds", ((int) sleepDuration).ToString()));
+                    else player.Broadcast(plugin.Config.tranquilizedBroadcastDuration, plugin.Config.tranquilizedBroadcast.Replace("%seconds", ((int) sleepDuration).ToString()));
                     
                 }
 
-                if(Config.dropItems)
+                if(plugin.Config.dropItems)
                     player.Inventory.ServerDropAll();
 
-                if(Config.usingEffects) {
+                if(plugin.Config.usingEffects) {
                     EnableEffects(controller);
                 }
 
-                if(Config.SummonRagdoll) {
+                if(plugin.Config.SummonRagdoll) {
                     // Spawn a Ragdoll
                     PlayerStats.HitInfo hitInfo = new PlayerStats.HitInfo(1000f, player.UserId, DamageTypes.Usp, player.Id);
 
@@ -334,12 +332,12 @@ namespace TranquilizerGun {
                     
                 }
 
-                if(Config.teleportAway) {
+                if(plugin.Config.teleportAway) {
                     // Apply effects
                     controller.EnableEffect<Amnesia>(sleepDuration);
                     controller.EnableEffect<Scp268>(sleepDuration);
 
-                    player.Position = new Vector3(Config.newPos_x, Config.newPos_y, Config.newPos_z);
+                    player.Position = new Vector3(plugin.Config.newPos_x, plugin.Config.newPos_y, plugin.Config.newPos_z);
                     Timing.CallDelayed(1f, () => player.ReferenceHub.playerEffectsController.DisableEffect<Decontaminating>());
                 }
 
@@ -354,14 +352,14 @@ namespace TranquilizerGun {
             try {
                 tranquilized.Remove(player.UserId);
 
-                if(Config.SummonRagdoll)
+                if(plugin.Config.SummonRagdoll)
                 foreach(Ragdoll doll in Object.FindObjectsOfType<Ragdoll>()) {
                     if(doll.owner.ownerHLAPI_id == player.Nickname) {
                         NetworkServer.Destroy(doll.gameObject);
                     }
                 }
 
-                if(Config.teleportAway) {
+                if(plugin.Config.teleportAway) {
                     player.ReferenceHub.playerEffectsController.DisableEffect<Decontaminating>();
                     player.Position = oldPos;
 
@@ -389,79 +387,79 @@ namespace TranquilizerGun {
         }
 
         public void EnableEffects(PlayerEffectsController controller) {
-            if(Config.amnesia) {
-                controller.EnableEffect<Amnesia>(Config.amnesiaDuration);
+            if(plugin.Config.amnesia) {
+                controller.EnableEffect<Amnesia>(plugin.Config.amnesiaDuration);
             }
 
-            if(Config.asphyxiated) {
-                controller.EnableEffect<Asphyxiated>(Config.asphyxiatedDuration);
+            if(plugin.Config.asphyxiated) {
+                controller.EnableEffect<Asphyxiated>(plugin.Config.asphyxiatedDuration);
             }
 
-            if(Config.blinded) {
-                controller.EnableEffect<Blinded>(Config.blindedDuration);
+            if(plugin.Config.blinded) {
+                controller.EnableEffect<Blinded>(plugin.Config.blindedDuration);
             }
 
-            if(Config.concussed) {
-                controller.EnableEffect<Concussed>(Config.concussedDuration);
+            if(plugin.Config.concussed) {
+                controller.EnableEffect<Concussed>(plugin.Config.concussedDuration);
             }
 
-            if(Config.deafened) {
-                controller.EnableEffect<Deafened>(Config.deafenedDuration);
+            if(plugin.Config.deafened) {
+                controller.EnableEffect<Deafened>(plugin.Config.deafenedDuration);
             }
 
-            if(Config.disabled) {
-                controller.EnableEffect<Disabled>(Config.disabledDuration);
+            if(plugin.Config.disabled) {
+                controller.EnableEffect<Disabled>(plugin.Config.disabledDuration);
             }
 
-            if(Config.ensnared) {
-                controller.EnableEffect<Ensnared>(Config.ensnaredDuration);
+            if(plugin.Config.ensnared) {
+                controller.EnableEffect<Ensnared>(plugin.Config.ensnaredDuration);
             }
 
-            if(Config.exhausted) {
-                controller.EnableEffect<Exhausted>(Config.exhaustedDuration);
+            if(plugin.Config.exhausted) {
+                controller.EnableEffect<Exhausted>(plugin.Config.exhaustedDuration);
             }
 
-            if(Config.flash) {
-                controller.EnableEffect<Flashed>(Config.flashDuration);
+            if(plugin.Config.flash) {
+                controller.EnableEffect<Flashed>(plugin.Config.flashDuration);
             }
 
-            if(Config.poisoned) {
-                controller.EnableEffect<Poisoned>(Config.poisonedDuration);
+            if(plugin.Config.poisoned) {
+                controller.EnableEffect<Poisoned>(plugin.Config.poisonedDuration);
             }
 
-            if(Config.bleeding) {
-                controller.EnableEffect<Bleeding>(Config.bleedingDuration);
+            if(plugin.Config.bleeding) {
+                controller.EnableEffect<Bleeding>(plugin.Config.bleedingDuration);
             }
 
-            if(Config.sinkhole) {
-                controller.EnableEffect<SinkHole>(Config.sinkholeDuration);
+            if(plugin.Config.sinkhole) {
+                controller.EnableEffect<SinkHole>(plugin.Config.sinkholeDuration);
             }
 
-            if(Config.invisible) {
-                controller.EnableEffect<Scp268>(Config.invisibleDuration);
+            if(plugin.Config.invisible) {
+                controller.EnableEffect<Scp268>(plugin.Config.invisibleDuration);
             }
 
-            if(Config.speed) {
-                controller.EnableEffect<Scp207>(Config.speedDuration);
+            if(plugin.Config.speed) {
+                controller.EnableEffect<Scp207>(plugin.Config.speedDuration);
             }
 
-            if(Config.hemorrhage) {
+            if(plugin.Config.hemorrhage) {
                 //hemrorrrogohgage
-                controller.EnableEffect<Hemorrhage>(Config.hemorrhageDuration);
+                controller.EnableEffect<Hemorrhage>(plugin.Config.hemorrhageDuration);
             }
 
-            if(Config.decontaminating) {
-                controller.EnableEffect<Decontaminating>(Config.decontaminatingDuration, true);
+            if(plugin.Config.decontaminating) {
+                controller.EnableEffect<Decontaminating>(plugin.Config.decontaminatingDuration, true);
             }
         }
 
         public bool IsTranquilizerDamage(DamageTypes.DamageType damageType) 
-            => (Config.comIsTranquilizer && damageType == DamageTypes.Com15) || (Config.uspIsTranquilizer && damageType == DamageTypes.Usp);
+            => (plugin.Config.comIsTranquilizer && damageType == DamageTypes.Com15) || (plugin.Config.uspIsTranquilizer && damageType == DamageTypes.Usp);
 
         public IEnumerator<float> DelayedReplace() {
             yield return Timing.WaitForSeconds(2f);
             foreach(Pickup item in Object.FindObjectsOfType<Pickup>()) {
-                if(item.ItemId == ItemType.GunCOM15 && UnityEngine.Random.Range(1, 100) <= Config.replaceChance) {
+                if(item.ItemId == ItemType.GunCOM15 && UnityEngine.Random.Range(1, 100) <= plugin.Config.replaceChance) {
                     ItemType.GunUSP.Spawn(18, item.Networkposition + new Vector3(0, 1, 0), default, 0, 1, 0);
                     item.Delete();
                 }
@@ -469,8 +467,8 @@ namespace TranquilizerGun {
         }
 
         public bool IsTranquilizer(ItemType type) =>
-            (type == ItemType.GunCOM15 && Config.comIsTranquilizer)
-                || (type == ItemType.GunUSP && Config.uspIsTranquilizer);
+            (type == ItemType.GunCOM15 && plugin.Config.comIsTranquilizer)
+                || (type == ItemType.GunUSP && plugin.Config.uspIsTranquilizer);
 
         // I'm fucking lazy 
         private void ToggleArmor(Player p, out string ReplyMessage) {
