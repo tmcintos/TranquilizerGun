@@ -55,11 +55,13 @@ namespace TranquilizerGun {
 
                     if(ev.Shooter.CurrentItem.durability < plugin.Config.ammoUsedPerShot - 1) {
                         if(plugin.Config.notEnoughAmmoBroadcastDuration > 0) {
-                            if(plugin.Config.clearBroadcasts)
-                                ev.Shooter.ClearBroadcasts();
                             if(plugin.Config.UseHintsSystem)
                                 ev.Shooter.ShowHint(plugin.Config.notEnoughAmmoBroadcastDuration, plugin.Config.notEnoughAmmoBroadcast.Replace("%ammo", $"{plugin.Config.ammoUsedPerShot}"));
-                            else ev.Shooter.Broadcast(plugin.Config.notEnoughAmmoBroadcastDuration, plugin.Config.notEnoughAmmoBroadcast.Replace("%ammo", $"{plugin.Config.ammoUsedPerShot}"));
+                            else {
+                                if(plugin.Config.clearBroadcasts)
+                                    ev.Shooter.ClearBroadcasts();
+                                ev.Shooter.Broadcast(plugin.Config.notEnoughAmmoBroadcastDuration, plugin.Config.notEnoughAmmoBroadcast.Replace("%ammo", $"{plugin.Config.ammoUsedPerShot}"));
+                            }
                         }
                         ev.IsAllowed = false;
                         return;
@@ -75,12 +77,13 @@ namespace TranquilizerGun {
             if(IsTranquilizer(ev.Pickup.ItemId) && plugin.Config.pickedUpBroadcastDuration > 0) {
                 if(!ev.Pickup.ItemId.IsPistol() || (plugin.Config.silencerRequired && ev.Pickup.weaponMods.Barrel != 1))
                     return;
-                if(plugin.Config.clearBroadcasts)
-                    ev.Player.ClearBroadcasts();
                 if(plugin.Config.UseHintsSystem)
                     ev.Player.ShowHint(plugin.Config.pickedUpBroadcastDuration, plugin.Config.pickedUpBroadcast.Replace("%ammo", $"{plugin.Config.ammoUsedPerShot}"));
-                else
+                else {
+                    if(plugin.Config.clearBroadcasts)
+                        ev.Player.ClearBroadcasts();
                     ev.Player.Broadcast(plugin.Config.pickedUpBroadcastDuration, plugin.Config.pickedUpBroadcast.Replace("%ammo", $"{plugin.Config.ammoUsedPerShot}"));
+                }
             }
         }
 
@@ -94,7 +97,7 @@ namespace TranquilizerGun {
                     ev.Amount = 0;
                     return;
                 } else if(IsTranquilizerDamage(ev.DamageType) && !tranquilized.Contains(ev.Target.UserId)) {
-                    if(!IsTranquilizer(ev.Attacker.CurrentItem.id) && plugin.Config.silencerRequired && !ev.Attacker.HasSilencer()) return;
+                    if(plugin.Config.silencerRequired && !ev.Attacker.HasSilencer()) return;
 
                     ev.Amount = plugin.Config.tranquilizerDamage;
 
@@ -135,6 +138,10 @@ namespace TranquilizerGun {
                     ev.IsAllowed = false;
                     if(ev.Arguments.Count >= 1) {
                         switch(ev.Arguments[0].ToLower()) {
+                            case "test":
+                                Map.StartDecontamination();
+                                ev.ReplyMessage = "ASDASD";
+                                break;
                             case "protect":
                             case "protection":
                             case "armor":
@@ -307,12 +314,13 @@ namespace TranquilizerGun {
 
                 // Broadcast message (if enabled)
                 if(plugin.Config.tranquilizedBroadcastDuration > 0) {
-                    if(plugin.Config.clearBroadcasts)
-                        player.ClearBroadcasts();
                     if(plugin.Config.UseHintsSystem)
                         player.ShowHint(plugin.Config.tranquilizedBroadcastDuration, plugin.Config.tranquilizedBroadcast.Replace("%seconds", ((int) sleepDuration).ToString()));
-                    else player.Broadcast(plugin.Config.tranquilizedBroadcastDuration, plugin.Config.tranquilizedBroadcast.Replace("%seconds", ((int) sleepDuration).ToString()));
-                    
+                    else {
+                        if(plugin.Config.clearBroadcasts)
+                            player.ClearBroadcasts();
+                        player.Broadcast(plugin.Config.tranquilizedBroadcastDuration, plugin.Config.tranquilizedBroadcast.Replace("%seconds", ((int) sleepDuration).ToString()));
+                    }
                 }
 
                 if(plugin.Config.dropItems)
@@ -320,6 +328,11 @@ namespace TranquilizerGun {
 
                 if(plugin.Config.usingEffects) {
                     EnableEffects(controller);
+
+                    if(plugin.Config.invisible) {
+                        Invisible(player, true);
+                        Timing.CallDelayed(plugin.Config.invisibleDuration, () => Invisible(player, false));
+                    }
                 }
 
                 if(plugin.Config.SummonRagdoll) {
@@ -360,26 +373,30 @@ namespace TranquilizerGun {
                 }
 
                 if(plugin.Config.teleportAway) {
-                    player.ReferenceHub.playerEffectsController.DisableEffect<Decontaminating>();
+                    //Timing.CallDelayed(1.5f, () => );
                     player.Position = oldPos;
 
-                    if(inPd)
-                        player.ReferenceHub.playerEffectsController.EnableEffect<Corroding>();
+                    Timing.CallDelayed(1.5f, () => {
+                        player.ReferenceHub.playerEffectsController.DisableEffect<Decontaminating>();
 
-                    if(bleeding)
-                        player.ReferenceHub.playerEffectsController.EnableEffect<Bleeding>(bleedingDur);
+                        if(inPd)
+                            player.ReferenceHub.playerEffectsController.EnableEffect<Corroding>();
 
-                    if(Warhead.IsDetonated) {
-                        if(player.CurrentRoom.Zone != ZoneType.Entrance)
-                            player.Kill();
-                        else
-                            foreach(Lift l in Map.Lifts)
-                                if(l.elevatorName.ToLower() == "gatea" || l.elevatorName.ToLower() == "gateb")
-                                    foreach(Lift.Elevator e in l.elevators)
-                                        if(e.target.name == "ElevatorChamber (1)")
-                                            if(Vector3.Distance(player.Position, e.target.position) <= 3.6f)
-                                                player.Kill();
-                    }
+                        if(bleeding)
+                            player.ReferenceHub.playerEffectsController.EnableEffect<Bleeding>(bleedingDur);
+
+                        if(Warhead.IsDetonated) {
+                            if(player.CurrentRoom.Zone != ZoneType.Entrance)
+                                player.Kill();
+                            else
+                                foreach(Lift l in Map.Lifts)
+                                    if(l.elevatorName.ToLower() == "gatea" || l.elevatorName.ToLower() == "gateb")
+                                        foreach(Lift.Elevator e in l.elevators)
+                                            if(e.target.name == "ElevatorChamber (1)")
+                                                if(Vector3.Distance(player.Position, e.target.position) <= 3.6f)
+                                                    player.Kill();
+                        }
+                    });
                 }
             } catch(Exception e) {
                 e.Print("Sleeping " + player.Nickname);
@@ -435,10 +452,6 @@ namespace TranquilizerGun {
                 controller.EnableEffect<SinkHole>(plugin.Config.sinkholeDuration);
             }
 
-            if(plugin.Config.invisible) {
-                controller.EnableEffect<Scp268>(plugin.Config.invisibleDuration);
-            }
-
             if(plugin.Config.speed) {
                 controller.EnableEffect<Scp207>(plugin.Config.speedDuration);
             }
@@ -450,6 +463,19 @@ namespace TranquilizerGun {
 
             if(plugin.Config.decontaminating) {
                 controller.EnableEffect<Decontaminating>(plugin.Config.decontaminatingDuration, true);
+            }
+        }
+
+        public void Invisible(Player p, bool toggle) {
+            if(toggle) {
+                foreach(Player ply in Player.List) {
+                    p.TargetGhostsHashSet.Add(ply.Id);
+                }
+            } else {
+                foreach(Player ply in Player.List) {
+                    if(p.TargetGhostsHashSet.Contains(ply.Id))
+                        p.TargetGhostsHashSet.Remove(ply.Id);
+                }
             }
         }
 

@@ -10,7 +10,7 @@ namespace TranquilizerGun {
 		// uniq = unique id - modBarrel == 1 = silencer
 		public static bool HasSilencer(this Player p) {
 			try {
-				return p.CurrentItemIndex > 0 && p.CurrentItem.id.IsPistol() && p.CurrentItem.modBarrel == 1;
+				return p.CurrentItem != null && p.CurrentItem.modBarrel == 1;
 			} catch(Exception e) {
 				e.Print("HasSilencer");
 			}	
