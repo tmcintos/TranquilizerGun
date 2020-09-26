@@ -138,10 +138,6 @@ namespace TranquilizerGun {
                     ev.IsAllowed = false;
                     if(ev.Arguments.Count >= 1) {
                         switch(ev.Arguments[0].ToLower()) {
-                            case "test":
-                                Map.StartDecontamination();
-                                ev.ReplyMessage = "ASDASD";
-                                break;
                             case "protect":
                             case "protection":
                             case "armor":
@@ -373,7 +369,6 @@ namespace TranquilizerGun {
                 }
 
                 if(plugin.Config.teleportAway) {
-                    //Timing.CallDelayed(1.5f, () => );
                     player.Position = oldPos;
 
                     Timing.CallDelayed(1.5f, () => {

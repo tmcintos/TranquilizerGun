@@ -36,8 +36,8 @@ namespace TranquilizerGun {
         public int tranquilizerDamage { get; set; } = 1;
 
         [Description("For how long will the players be put to sleep.")]
-        public float sleepDurationMax { get; set; } = 3;
-        public float sleepDurationMin { get; set; } = 5;
+        public float sleepDurationMax { get; set; } = 5;
+        public float sleepDurationMin { get; set; } = 3;
         #endregion
 
         #region Broadcasts
