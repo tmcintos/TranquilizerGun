@@ -32,10 +32,11 @@ namespace TranquilizerGun {
         }
 
 		public static Inventory.SyncItemInfo GetTranquilizerItem() {
-			Inventory.SyncItemInfo _tempGun = new Inventory.SyncItemInfo();
-			_tempGun.modBarrel = 1;
-			_tempGun.durability = 18;
-			_tempGun.id = ItemType.GunUSP;
+			Inventory.SyncItemInfo _tempGun = new Inventory.SyncItemInfo {
+				modBarrel = Plugin.Instance.Config.silencerRequired ? 1 : 0,
+				durability = Plugin.Instance.Config.uspIsTranquilizer ? 18 : 12,
+				id = Plugin.Instance.Config.uspIsTranquilizer ? ItemType.GunUSP : ItemType.GunCOM15
+			};
 			// This is still todo
 			return _tempGun;
 		}

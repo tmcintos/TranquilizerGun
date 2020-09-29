@@ -81,7 +81,7 @@ namespace TranquilizerGun {
         [Description("If Serpents Hand is enabled and you don't want friendly fire enabled, set this to true.")]
         public bool areTutorialSerpentsHand { get; set; } = false;
 
-        [Description("Are COM-15s replaced with USPs at the start of the round?")]
+        [Description("Are COM-15s replaced with USPs at the start of the round? (2.3.1 Note: This doesn't work anymore as of 10.0.2, this feature will comeback at some point, but as of now, it's useless)")]
         public bool replaceCom { get; set; } = true;
 
         [Description("Chance for COM-15s to be replaced with USPs. (From 0 to 100)")]

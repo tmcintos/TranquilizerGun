@@ -16,10 +16,12 @@ namespace TranquilizerGun {
         public override string Name => "TranquilizerGun";
         public override string Author => "Beryl";
         public override Version Version { get; } = new Version(2, 2, 2);
+        public static Plugin Instance;
 
         public EventsHandler handler;
 
         public override void OnEnabled() {
+            Instance = this;
             handler = new EventsHandler(this);
 
             if(Config.IsEnabledCustom)

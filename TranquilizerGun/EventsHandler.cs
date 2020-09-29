@@ -38,7 +38,7 @@ namespace TranquilizerGun {
         }
 
         public void RoundStart() {
-            Timing.RunCoroutine(DelayedReplace());
+            //Timing.RunCoroutine(DelayedReplace());
             testFix = false;
         } 
 
