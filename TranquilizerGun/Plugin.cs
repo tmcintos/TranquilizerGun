@@ -15,8 +15,9 @@ namespace TranquilizerGun {
         public override string Prefix => "tranquilizergun";
         public override string Name => "TranquilizerGun";
         public override string Author => "Beryl";
-        public override Version Version { get; } = new Version(2, 2, 2);
-        public static Plugin Instance;
+        public override Version RequiredExiledVersion => new Version(2, 8, 0);
+        public override Version Version { get; } = new Version(2, 4, 0);
+        public static Plugin Instance { get; private set;  }
 
         public EventsHandler handler;
 
@@ -26,7 +27,6 @@ namespace TranquilizerGun {
 
             if(Config.IsEnabledCustom)
                 RegisterEvents();
-            Server.SendingRemoteAdminCommand += handler.OnCommand;
 
             Timing.CallDelayed(1f, () => {
                 try {
@@ -38,16 +38,17 @@ namespace TranquilizerGun {
             });
 
             Log.Info($"{Name} has been enabled!");
+            base.OnEnabled();
         }
 
         public override void OnDisabled() {
 
-            Server.SendingRemoteAdminCommand -= handler.OnCommand;
             if(Config.IsEnabledCustom)
                 UnregisterEvents();
 
             handler = null;
             Log.Info($"{Name} has been disabled!");
+            base.OnDisabled();
         }
 
         public override void OnReloaded() => Log.Info($"{Name} has been reloaded!");
@@ -56,7 +57,6 @@ namespace TranquilizerGun {
             Player.PickingUpItem += handler.OnPickupEvent;
             Player.Shooting += handler.ShootEvent;
             Player.Hurting += handler.HurtEvent;
-            Server.RoundStarted += handler.RoundStart;
             Server.RoundEnded += handler.RoundEnd;
         }
 
@@ -64,7 +64,6 @@ namespace TranquilizerGun {
             Player.PickingUpItem -= handler.OnPickupEvent;
             Player.Shooting -= handler.ShootEvent;
             Player.Hurting -= handler.HurtEvent;
-            Server.RoundStarted -= handler.RoundStart;
             Server.RoundEnded -= handler.RoundEnd;
         }
 

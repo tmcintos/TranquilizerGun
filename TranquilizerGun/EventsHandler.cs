@@ -20,7 +20,7 @@ namespace TranquilizerGun {
         private Plugin plugin;
         public List<string> tranquilized, armored;
         public Dictionary<string, int> scpShots;
-        bool allArmorEnabled = false, testFix;
+        public bool allArmorEnabled = false;
 
         public EventsHandler(Plugin plugin) {
             this.plugin = plugin;
@@ -29,23 +29,13 @@ namespace TranquilizerGun {
             scpShots = new Dictionary<string, int>();
         }
 
-        public void RoundEnd(RoundEndedEventArgs ev) {
+        public void RoundEnd(RoundEndedEventArgs _) {
             tranquilized.Clear();
             armored.Clear();
             scpShots.Clear();
-
-            testFix = true;
-        }
-
-        public void RoundStart() {
-            //Timing.RunCoroutine(DelayedReplace());
-            testFix = false;
         } 
 
         public void ShootEvent(ShootingEventArgs ev) {
-            // I know this is a lazy fix, don't ree at me about it, I'm trying to fix my sleeping schedule and other projects so haven't got much time to find the cause of the Exception this week, prob will actually fix it soon 
-            if(testFix)
-                return;
             try {
                 if((ev.Shooter.CurrentItem.id == ItemType.GunCOM15 && plugin.Config.comIsTranquilizer)
                     || (ev.Shooter.CurrentItem.id == ItemType.GunUSP && plugin.Config.uspIsTranquilizer)) {
@@ -124,181 +114,6 @@ namespace TranquilizerGun {
             }
         }
 
-        #region Commands
-        public void OnCommand(SendingRemoteAdminCommandEventArgs ev) {
-            try {
-                if(ev.Name.Contains("REQUEST_DATA PLAYER_LIST"))
-                    return;
-
-                string cmd = ev.Name.ToLower();
-                Player sender = ev.Sender;
-                // reload / protect / replaceguns / toggle / sleep / version / setgun / addgun / defaultplugin.Config
-
-                if(cmd.Equals("tg") || cmd.Equals("tgun") || cmd.Equals("tranqgun") || cmd.Equals("tranquilizergun")) {
-                    ev.IsAllowed = false;
-                    if(ev.Arguments.Count >= 1) {
-                        switch(ev.Arguments[0].ToLower()) {
-                            case "protect":
-                            case "protection":
-                            case "armor":
-                                if(!sender.CheckPermission("tgun.armor")) {
-                                    ev.ReplyMessage = "<color=red>Permission denied.</color>";
-                                    return;
-                                }
-
-                                if(ev.Arguments.Count > 1) {
-                                    string argument = ev.Arguments[1];
-                                    if(argument.ToLower() == "all" || argument == "*") {
-                                        int amountArmored = 0;
-                                        foreach(Player p in Player.List) {
-                                            if(allArmorEnabled && armored.Contains(p.UserId)) {
-                                                armored.Remove(p.UserId);
-                                                amountArmored++;
-                                            } else if(!allArmorEnabled && !armored.Contains(p.UserId)) {
-                                                armored.Add(p.UserId);
-                                                amountArmored++;
-                                            }
-                                        }
-                                        ev.ReplyMessage = allArmorEnabled ? $"<color=#4ce300>Tranquilizer protection has been disabled for {amountArmored} players.</color>" : $"<color=#4ce300>Tranquilizer protection has been enabled for {amountArmored} players.</color>";
-                                        allArmorEnabled = !allArmorEnabled;
-                                    } else {
-                                        Player p = Player.Get(argument);
-
-                                        if(p == null) {
-                                            ev.ReplyMessage = $"<color=red>Couldn't find player <b>{argument}</b>.</color>";
-                                            return;
-                                        }
-
-                                        ToggleArmor(p, out string newMessage);
-                                        ev.ReplyMessage = newMessage;
-                                        return;
-                                    }
-                                } else {
-                                    ToggleArmor(ev.Sender, out string newMessage);
-                                    ev.ReplyMessage = newMessage;
-                                }
-                                return;
-                            case "replaceguns":
-                                if(!sender.CheckPermission("tgun.replaceguns")) {
-                                    ev.ReplyMessage = "<color=red>Permission denied.</color>";
-                                    return;
-                                }
-                                int a = 0;
-
-                                foreach(Pickup item in Object.FindObjectsOfType<Pickup>()) {
-                                    if(item.ItemId == ItemType.GunCOM15 && UnityEngine.Random.Range(1, 100) <= plugin.Config.replaceChance) {
-                                        ItemType.GunUSP.Spawn(18, item.Networkposition + new Vector3(0, 1, 0), default, 0, 1, 0);
-                                        item.Delete();
-                                    }
-                                }
-                                ev.ReplyMessage = $"<color=#4ce300>A total of {a} COM-15 pistols have been replaced.</color>";
-                                return;
-                            case "sleep":
-                                if(!sender.CheckPermission("tgun.sleep")) {
-                                    ev.ReplyMessage = "<color=red>Permission denied.</color>";
-                                    return;
-                                }
-                                if(ev.Arguments.Count > 1) {
-                                    string argument = ev.Arguments[1];
-                                    if(argument.ToLower() == "all" || argument == "*") {
-                                        int amountSleeping = 0;
-                                        foreach(Player p in Player.List) {
-                                            if(p.Side != Side.None && !tranquilized.Contains(p.UserId)) {
-                                                Sleep(p);
-                                                amountSleeping++;
-                                            }
-                                        }
-                                        ev.ReplyMessage = $"<color=#4ce300>A total of {amountSleeping} players have been put to sleep.</color>";
-                                    } else {
-                                        Player p = Player.Get(argument);
-
-                                        if(p == null) {
-                                            ev.ReplyMessage = $"<color=red>Couldn't find player <b>{argument}</b>.</color>";
-                                            return;
-                                        } else if(tranquilized.Contains(p.UserId)) {
-                                            ev.ReplyMessage = "<color=red>You're already sleeping...?</color>";
-                                            return;
-                                        }
-
-                                        Sleep(p);
-                                        ev.ReplyMessage = $"<color=#4ce300>{p.Nickname} has been forced to sleep. Tell him sweet dreams!</color>";
-                                        return;
-                                    }
-                                } else {
-                                    Sleep(ev.Sender);
-                                    ev.ReplyMessage = $"<color=#4ce300>You've been forced to sleep. Sweet dreams!</color>";
-                                }
-                                return;
-                            case "version":
-                                ev.ReplyMessage = "You're currently using " + System.Reflection.Assembly.GetExecutingAssembly().GetName().Name;
-                                return;
-                            case "receivegun":
-                            case "addgun":
-                            case "givegun":
-                                if(!sender.CheckPermission("tgun.givegun")) {
-                                    ev.ReplyMessage = "<color=red>Permission denied.</color>";
-                                    return;
-                                }
-                                if(ev.Arguments.Count > 1) {
-                                    string argument = ev.Arguments[1];
-                                    if(argument.ToLower() == "all" || argument == "*") {
-                                        int amountGiven = 0;
-                                        foreach(Player p in Player.List) {
-                                            if(p.Side != Side.None) {
-                                                ev.Sender.AddItem(Extensions.GetTranquilizerItem());
-                                                amountGiven++;
-                                            }
-                                        }
-                                        ev.ReplyMessage = $"<color=#4ce300>A total of {amountGiven} players received Tranquilizers.</color>";
-                                    } else {
-                                        Player p = Player.Get(argument);
-
-                                        if(p == null) {
-                                            ev.ReplyMessage = $"<color=red>Couldn't find player <b>{argument}</b>.</color>";
-                                            return;
-                                        }
-
-                                        ev.Sender.AddItem(Extensions.GetTranquilizerItem());
-                                        ev.ReplyMessage = $"<color=#4ce300>{p.Nickname} received a Tranquilizer.</color>";
-                                        return;
-                                    }
-                                } else {
-                                    ev.Sender.AddItem(Extensions.GetTranquilizerItem());
-                                    ev.ReplyMessage = $"<color=#4ce300>Enjoy your Tranquilizer!</color>";
-                                }
-                                return;
-                            case "toggle":
-                                if(!sender.CheckPermission("tgun.toggle")) {
-                                    ev.ReplyMessage = "<color=red>Permission denied.</color>";
-                                    return;
-                                }
-                                if(plugin.Config.IsEnabledCustom) {
-                                    plugin.UnregisterEvents();
-                                    plugin.Config.IsEnabledCustom = false;
-                                    ev.ReplyMessage = $"<color=#4ce300>The plugin has now been disabled!</color>";
-                                } else {
-                                    plugin.RegisterEvents();
-                                    plugin.Config.IsEnabledCustom = true;
-                                    ev.ReplyMessage = $"<color=#4ce300>The plugin has now been enabled!</color>";
-                                }
-                                return;
-                        }
-                    }
-                    ev.ReplyMessage =
-                        $"\n<color=#4ce300>--- [ TranqGun Help ] ---</color>" +
-                        $"\n<color=#006eff>Protection:</color> <color=#f7ff9c>Grants you special protection against Tranquilizers.</color>" +
-                        $"\n<color=#006eff>ReplaceGuns:</color> <color=#f7ff9c>Replaces any COM-15s with Tranquilizers.</color>" +
-                        $"\n<color=#006eff>Sleep:</color> <color=#f7ff9c>Forces the sleep method on someone.</color>" +
-                        $"\n<color=#006eff>AddGun:</color> <color=#f7ff9c>Add a Tranquilizer to your inventory.</color>" +
-                        $"\n<color=#006eff>Toggle:</color> <color=#f7ff9c>Toggles the plugin's features on/off.</color>" +
-                        $"\n<color=#006eff>Version:</color> <color=#f7ff9c>Check the installed version of this plugin.</color>";
-                }
-            } catch(Exception e) {
-                e.Print("OnCommand");
-            }
-        }
-        #endregion
-
         public void Sleep(Player player) {
             try {
                 // Initialize variables & add player to list
@@ -372,6 +187,10 @@ namespace TranquilizerGun {
                     player.Position = oldPos;
 
                     Timing.CallDelayed(1.5f, () => {
+                        // Attempt number 27 of fixing this issue
+                        if(player.TryGetEffect(EffectType.Decontaminating, out var effect)) {
+                            (effect as Decontaminating).TimeLeft = 99f;
+                        }
                         player.ReferenceHub.playerEffectsController.DisableEffect<Decontaminating>();
 
                         if(inPd)
@@ -381,15 +200,20 @@ namespace TranquilizerGun {
                             player.ReferenceHub.playerEffectsController.EnableEffect<Bleeding>(bleedingDur);
 
                         if(Warhead.IsDetonated) {
-                            if(player.CurrentRoom.Zone != ZoneType.Entrance)
+                            if(player.CurrentRoom.Zone != ZoneType.Surface)
                                 player.Kill();
-                            else
-                                foreach(Lift l in Map.Lifts)
-                                    if(l.elevatorName.ToLower() == "gatea" || l.elevatorName.ToLower() == "gateb")
-                                        foreach(Lift.Elevator e in l.elevators)
-                                            if(e.target.name == "ElevatorChamber (1)")
-                                                if(Vector3.Distance(player.Position, e.target.position) <= 3.6f)
-                                                    player.Kill();
+                            else {
+                                foreach(Lift l in Map.Lifts) {
+                                    if(l.Type() == ElevatorType.GateA || l.Type() == ElevatorType.GateB) {
+                                        foreach(Lift.Elevator e in l.elevators) {
+                                            if(Vector3.Distance(player.Position, e.target.position) <= 3.6f) {
+                                                player.Kill();
+                                                return;
+                                            }
+                                        }
+                                    }
+                                }
+                            }  
                         }
                     });
                 }
@@ -474,25 +298,15 @@ namespace TranquilizerGun {
             }
         }
 
-        public bool IsTranquilizerDamage(DamageTypes.DamageType damageType) 
-            => (plugin.Config.comIsTranquilizer && damageType == DamageTypes.Com15) || (plugin.Config.uspIsTranquilizer && damageType == DamageTypes.Usp);
-
-        public IEnumerator<float> DelayedReplace() {
-            yield return Timing.WaitForSeconds(2f);
-            foreach(Pickup item in Object.FindObjectsOfType<Pickup>()) {
-                if(item.ItemId == ItemType.GunCOM15 && UnityEngine.Random.Range(1, 100) <= plugin.Config.replaceChance) {
-                    ItemType.GunUSP.Spawn(18, item.Networkposition + new Vector3(0, 1, 0), default, 0, 1, 0);
-                    item.Delete();
-                }
-            }
-        }
+        public bool IsTranquilizerDamage(DamageTypes.DamageType damageType) => 
+            (plugin.Config.comIsTranquilizer && damageType == DamageTypes.Com15) || (plugin.Config.uspIsTranquilizer && damageType == DamageTypes.Usp);
 
         public bool IsTranquilizer(ItemType type) =>
             (type == ItemType.GunCOM15 && plugin.Config.comIsTranquilizer)
                 || (type == ItemType.GunUSP && plugin.Config.uspIsTranquilizer);
 
         // I'm fucking lazy 
-        private void ToggleArmor(Player p, out string ReplyMessage) {
+        public void ToggleArmor(Player p, out string ReplyMessage) {
             if(armored.Contains(p.UserId)) {
                 armored.Remove(p.UserId);
                 ReplyMessage = $"<color=red>{p.Nickname} is no longer protected against Tranquilizers.</color>";
