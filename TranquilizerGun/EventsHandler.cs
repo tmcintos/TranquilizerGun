@@ -285,17 +285,17 @@ namespace TranquilizerGun {
             }
         }
 
-        public void Invisible(Player p, bool toggle) {
+        public void Invisible(Player player, bool toggle) {
             if(toggle) {
-                foreach(Player ply in Player.List) {
-                    if(ply == p)
+                foreach(var item in Player.List) {
+                    if(item == player)
                         continue;
 
-                    p.TargetGhostsHashSet.Add(ply.Id);
+                    item.TargetGhostsHashSet.Add(player.Id);
                 }
             } else {
-                foreach(Player ply in Player.List) {
-                    p.TargetGhostsHashSet.Remove(ply.Id);
+                foreach(Player item in Player.List) {
+                    item.TargetGhostsHashSet.Remove(player.Id);
                 }
             }
         }
