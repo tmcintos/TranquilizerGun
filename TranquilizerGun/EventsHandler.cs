@@ -288,12 +288,14 @@ namespace TranquilizerGun {
         public void Invisible(Player p, bool toggle) {
             if(toggle) {
                 foreach(Player ply in Player.List) {
+                    if(ply == p)
+                        continue;
+
                     p.TargetGhostsHashSet.Add(ply.Id);
                 }
             } else {
                 foreach(Player ply in Player.List) {
-                    if(p.TargetGhostsHashSet.Contains(ply.Id))
-                        p.TargetGhostsHashSet.Remove(ply.Id);
+                    p.TargetGhostsHashSet.Remove(ply.Id);
                 }
             }
         }
