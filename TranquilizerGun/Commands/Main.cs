@@ -6,12 +6,15 @@ using System.Threading.Tasks;
 using CommandSystem;
 
 namespace TranquilizerGun.Commands {
+    [CommandHandler(typeof(RemoteAdminCommandHandler))]
     public class Main : ParentCommand {
         public override string Command => "tranquilizergun";
 
-        public override string[] Aliases => new[] { "tg", "tgun", "tranqgun" };
+        public override string[] Aliases => new[] { "tgun", "tranqgun" };
 
         public override string Description => "Tranquilizer Gun's main command.";
+
+        public Main() => LoadGeneratedCommands();
 
         public override void LoadGeneratedCommands() {
             RegisterCommand(new Protection());
