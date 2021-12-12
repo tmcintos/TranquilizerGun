@@ -10,28 +10,22 @@
 
     <ItemGroup>
       <Reference Include="Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null">
-        <HintPath>..\..\..\Documents\ExiledReferences\Assembly-CSharp-Publicized.dll</HintPath>
+        <HintPath>$(ExiledReferences)\Assembly-CSharp-Publicized.dll</HintPath>
       </Reference>
       <Reference Include="Assembly-CSharp-firstpass, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null">
-        <HintPath>..\..\..\Documents\ExiledReferences\Assembly-CSharp-firstpass.dll</HintPath>
+        <HintPath>$(ExiledReferences)\Assembly-CSharp-firstpass.dll</HintPath>
       </Reference>
       <Reference Include="CommandSystem.Core, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null">
-        <HintPath>..\..\..\Documents\ExiledReferences\CommandSystem.Core.dll</HintPath>
+        <HintPath>$(ExiledReferences)\ExiledReferences\CommandSystem.Core.dll</HintPath>
       </Reference>
       <Reference Include="Mirror, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null">
-        <HintPath>..\..\..\Documents\ExiledReferences\Mirror.dll</HintPath>
-      </Reference>
-      <Reference Include="NorthwoodLib, Version=1.2.1.0, Culture=neutral, PublicKeyToken=null">
-        <HintPath>..\..\..\Documents\ExiledReferences\NorthwoodLib.dll</HintPath>
+        <HintPath>$(ExiledReferences)\ExiledReferences\Mirror.dll</HintPath>
       </Reference>
       <Reference Include="UnityEngine, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null">
-        <HintPath>..\..\..\Documents\ExiledReferences\UnityEngine.dll</HintPath>
+        <HintPath>$(ExiledReferences)\ExiledReferences\UnityEngine.dll</HintPath>
       </Reference>
       <Reference Include="UnityEngine.CoreModule, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null">
-        <HintPath>..\..\..\Documents\ExiledReferences\UnityEngine.CoreModule.dll</HintPath>
-      </Reference>
-      <Reference Include="UnityEngine.PhysicsModule, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null">
-        <HintPath>..\..\..\Documents\ExiledReferences\UnityEngine.PhysicsModule.dll</HintPath>
+        <HintPath>$(ExiledReferences)\ExiledReferences\UnityEngine.CoreModule.dll</HintPath>
       </Reference>
     </ItemGroup>
 
