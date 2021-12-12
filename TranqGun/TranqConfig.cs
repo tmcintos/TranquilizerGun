@@ -1,14 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.Linq;
-using System.Text;
 using System.Text.RegularExpressions;
-using System.Threading.Tasks;
 using Exiled.API.Features;
 using Exiled.API.Interfaces;
-using Exiled.Loader;
-using UnityEngine;
+using TranqGun;
 
 namespace TranquilizerGun {
     public class TranqConfig : IConfig {
@@ -45,7 +41,7 @@ namespace TranquilizerGun {
         public bool clearBroadcasts { get; set; } = true;
 
         [Description("Whether to use the new SCP:SL Hints System over broadcasts (The same variables below are used)")]
-        public bool UseHintsSystem { get; set; } = false;
+        public bool UseHintsSystem { get; set; } = true;
 
         [Description("Broadcast shown when the player is shot with a Tranquilizer. (Using %seconds in the text will be replaced by how many seconds the player will sleep for.")]
         public ushort tranquilizedBroadcastDuration { get; set; } = 3;
@@ -53,7 +49,7 @@ namespace TranquilizerGun {
 
         [Description("Broadcast shown when a Tranquilizer is picked up.")]
         public ushort pickedUpBroadcastDuration { get; set; } = 3;
-        public string pickedUpBroadcast { get; set; } = "'<color=green><b>You picked up a tranquilizer gun!</b></color> \nEvery shot uses %ammo ammo, so count your bullets!'";
+        public string pickedUpBroadcast { get; set; } = "'<color=green><b>You have equipped a tranquilizer gun!</b></color> \nEvery shot uses %ammo ammo, so count your bullets!'";
 
         [Description("Broadcast shown when a player is trying to shoot but has no ammo.")]
         public ushort notEnoughAmmoBroadcastDuration { get; set; } = 3;

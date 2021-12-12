@@ -1,14 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using CommandSystem;
-using Exiled.API.Enums;
-using Exiled.API.Features;
-using Exiled.Permissions.Extensions;
 
-namespace TranquilizerGun.Commands {
+namespace TranqGun.Commands {
     public class Version : ICommand {
         public string Command => "version";
 

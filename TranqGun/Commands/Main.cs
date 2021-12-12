@@ -1,11 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using CommandSystem;
 
-namespace TranquilizerGun.Commands {
+namespace TranqGun.Commands {
     [CommandHandler(typeof(RemoteAdminCommandHandler))]
     public class Main : ParentCommand {
         public override string Command => "tranquilizergun";

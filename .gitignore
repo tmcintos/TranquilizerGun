@@ -1,13 +1,3 @@
-.idea/
-.vs/
-.vscode/
-
-TranquilizerGun/bin/
-TranquilizerGun/obj/
-TranquilizerGun/References/
-/Examples
-/packages/EXILED.2.0.7
-/TranquilizerGun/packages.config
-/packages/EXILED.2.0.10
-/packages/EXILED.2.1.6
-/packages/EXILED.2.8.0
+﻿.idea
+bin/
+obj/

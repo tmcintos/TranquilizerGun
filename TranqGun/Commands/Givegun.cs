@@ -7,16 +7,22 @@ using CommandSystem;
 using Exiled.API.Enums;
 using Exiled.API.Features;
 using Exiled.Permissions.Extensions;
+using TranqGun;
 
-namespace TranquilizerGun.Commands {
+namespace TranqGun.Commands {
     public class Givegun : ICommand {
         public string Command => "receivegun";
 
         public string[] Aliases => new[] { "givegun", "gg", "addgun" };
 
-        public string Description => "Gives you a Tranquilizer Gun.";
+        public string Description => "Gives you a Tranquilizer Gun. (BROKEN!)";
+        
+        public bool Execute(ArraySegment<string> arguments, ICommandSender sender, out string response)
+        {
+            throw new NotImplementedException();
+        }
 
-        public bool Execute(ArraySegment<string> arguments, ICommandSender sender, out string response) {
+        /*public bool Execute(ArraySegment<string> arguments, ICommandSender sender, out string response) {
             if(!sender.CheckPermission("tgun.sleep")) {
                 response = "<color=red>Permission denied.</color>";
                 return false;
@@ -50,6 +56,6 @@ namespace TranquilizerGun.Commands {
                 response = $"<color=#4ce300>You've received a TranqGun!</color>";
             }
             return false;
-        }
+        }*/
     }
 }

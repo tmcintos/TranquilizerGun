@@ -1,14 +1,10 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using CommandSystem;
 using Exiled.API.Enums;
 using Exiled.API.Features;
 using Exiled.Permissions.Extensions;
 
-namespace TranquilizerGun.Commands {
+namespace TranqGun.Commands {
     public class Sleep : ICommand {
         public string Command => "forcesleep";
 
@@ -16,7 +12,7 @@ namespace TranquilizerGun.Commands {
 
         public string Description => "Forces the sleep method on someone.";
 
-        private EventsHandler Handler => Plugin.Instance.handler;
+        private EventsHandler Handler => Plugin.Instance.Handler;
 
         public bool Execute(ArraySegment<string> arguments, ICommandSender sender, out string response) {
             if(!sender.CheckPermission("tgun.sleep")) {
@@ -29,7 +25,7 @@ namespace TranquilizerGun.Commands {
                 if(argument.Equals("all", StringComparison.OrdinalIgnoreCase) || argument == "*") {
                     int amountSleeping = 0;
                     foreach(Player p in Player.List) {
-                        if(p.Side != Side.None && !Handler.tranquilized.Contains(p.UserId)) {
+                        if(p.Side != Side.None && !Handler.Tranquilized.Contains(p.UserId)) {
                             Handler.Sleep(p);
                             amountSleeping++;
                         }
