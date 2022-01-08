@@ -8,20 +8,22 @@ using InventorySystem.Items.Firearms.Attachments;
 namespace TranqGun {
     public static class Extensions {
 		// uniq = unique id - modBarrel == 1 = silencer
-		public static bool HasSilencer(this Player p) {
-			try {
-				return p.CurrentItem is Firearm gun && gun.Attachments.Any(attachment => attachment.Name == AttachmentNameTranslation.SoundSuppressor);
-			} catch(Exception e) {
-				e.Print("HasSilencer");
-			}	
-			return false;
+		public static bool HasSilencer(this Player p)
+		{
+			return p.CurrentItem is Firearm gun && gun.Attachments.Any(attachment =>
+				attachment.Name == AttachmentNameTranslation.SoundSuppressor);
 		}
 
 		public static void ShowHint(this Player p, float duration, string text) => p.ShowHint(text, duration);
 
+		/// <summary>
+		/// Removes an given amount of 9X19 ammo (Nonfunctional)
+		/// </summary>
+		/// <param name="player"></param>
+		/// <param name="amount"></param>
 		public static void RemoveWeaponAmmo(this Player player, int amount)
 		{
-			player.Ammo.Remove(ItemType.Ammo9x19 - amount);
+			player.Ammo[ItemType.Ammo9x19] -= Convert.ToUInt16(amount);
 		}
 
 		public static void Print(this Exception e, string type) {

@@ -5,27 +5,27 @@
     </PropertyGroup>
 
     <ItemGroup>
-      <PackageReference Include="EXILED" Version="4.1.5" />
+      <PackageReference Include="EXILED" Version="4.2.2" />
     </ItemGroup>
 
     <ItemGroup>
       <Reference Include="Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null">
-        <HintPath>$(ExiledReferences)\Assembly-CSharp-Publicized.dll</HintPath>
+        <HintPath>$(EXILED_REFERENCES)\Assembly-CSharp-Publicized.dll</HintPath>
       </Reference>
       <Reference Include="Assembly-CSharp-firstpass, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null">
-        <HintPath>$(ExiledReferences)\Assembly-CSharp-firstpass.dll</HintPath>
+        <HintPath>$(EXILED_REFERENCES)\Assembly-CSharp-firstpass.dll</HintPath>
       </Reference>
       <Reference Include="CommandSystem.Core, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null">
-        <HintPath>$(ExiledReferences)\ExiledReferences\CommandSystem.Core.dll</HintPath>
+        <HintPath>$(EXILED_REFERENCES)\CommandSystem.Core.dll</HintPath>
       </Reference>
       <Reference Include="Mirror, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null">
-        <HintPath>$(ExiledReferences)\ExiledReferences\Mirror.dll</HintPath>
+        <HintPath>$(EXILED_REFERENCES)\Mirror.dll</HintPath>
       </Reference>
       <Reference Include="UnityEngine, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null">
-        <HintPath>$(ExiledReferences)\ExiledReferences\UnityEngine.dll</HintPath>
+        <HintPath>$(EXILED_REFERENCES)\UnityEngine.dll</HintPath>
       </Reference>
       <Reference Include="UnityEngine.CoreModule, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null">
-        <HintPath>$(ExiledReferences)\ExiledReferences\UnityEngine.CoreModule.dll</HintPath>
+        <HintPath>$(EXILED_REFERENCES)\UnityEngine.CoreModule.dll</HintPath>
       </Reference>
     </ItemGroup>
 

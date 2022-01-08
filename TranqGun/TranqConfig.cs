@@ -26,7 +26,10 @@ namespace TranquilizerGun {
         public bool silencerRequired { get; set; } = true;
 
         [Description("How much ammo is used per shot.")]
-        public int ammoUsedPerShot { get; set; } = 9;
+        public ushort ammoUsedPerShot { get; set; } = 8;
+
+        [Description("Stops client from desyncing and showing the player that they are shooting when they are not by setting their ammo amount to 0 when it gets less than the needed ammo to shoot a tranq shot")]
+        public bool stopClientDesync { get; set; } = true;
 
         [Description("How much damage does a Tranquilizer gun do.")]
         public int tranquilizerDamage { get; set; } = 1;
@@ -66,10 +69,10 @@ namespace TranquilizerGun {
         public float newPos_z { get; set; } = 3;
 
         [Description("Whether the player will be teleported away. (This + the effect below will give the effect that the old Tranquilizer had). (This will also apply Amnesia + Invisibility effects for the duration of the sleep effect)")]
-        public bool teleportAway { get; set; } = false;
+        public bool teleportAway { get; set; } = true;
 
         [Description("Whether a Ragdoll is summoned when you're tranquilized.")]
-        public bool SummonRagdoll { get; set; } = false;
+        public bool SummonRagdoll { get; set; } = true;
 
         [Description("Should the player's inventory be dropped when shot.")]
         public bool dropItems { get; set; } = false;
@@ -85,10 +88,10 @@ namespace TranquilizerGun {
 
         [Description("List of roles which will be ignored by the Tranquilizer.")]
         public bool doBlacklist { get; set; } = true;
-        public string blacklist { get; set; } = "Scp173, Scp106";
+        public string blacklist { get; set; } = "Scp173";
         [Description("List of roles which will require multiple shots to be put to sleep.")]
-        public bool doSpecialRoles { get; set; } = false;
-        public string specialRolesList { get; set; } = "Scp173:2, Scp106:5";
+        public bool doSpecialRoles { get; set; } = true;
+        public string specialRolesList { get; set; } = "Scp173:2, Scp106:3";
 
         internal List<RoleType> roleBlacklist;
         internal Dictionary<RoleType, ushort> specialRoles;

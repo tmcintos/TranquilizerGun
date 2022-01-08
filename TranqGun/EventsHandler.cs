@@ -36,41 +36,71 @@ namespace TranqGun {
             ScpShots.Clear();
         } 
 
-        public void ShootEvent(ShootingEventArgs ev) {
-            try {
-                if((ev.Shooter.CurrentItem.Type == ItemType.GunCOM15 && _plugin.Config.comIsTranquilizer)
-                    || (ev.Shooter.CurrentItem.Type == ItemType.GunCOM18 && _plugin.Config.uspIsTranquilizer)) {
+        public void ShootEvent(ShootingEventArgs ev)
+        {
+            Log.Debug("Shooting Event Ran");
+            if (!IsTranquilizer(ev.Shooter.CurrentItem.Type))
+                return;
+            
+            Log.Debug("Shooting check 1");
+            if(_plugin.Config.silencerRequired && !ev.Shooter.HasSilencer())
+                return;
 
-                    if(_plugin.Config.silencerRequired && !ev.Shooter.HasSilencer())
-                        return;
+            Log.Debug("Shooting check 2");
+            if (ev.Shooter.CurrentItem is Firearm foundGun)
+                Log.Debug($"Gun Ammo: {foundGun.Ammo}");
 
-                    if(ev.Shooter.CurrentItem is Firearm firearm && firearm.Ammo < _plugin.Config.ammoUsedPerShot - 1) {
-                        if(_plugin.Config.notEnoughAmmoBroadcastDuration > 0) {
-                            if(_plugin.Config.UseHintsSystem)
-                                ev.Shooter.ShowHint(_plugin.Config.notEnoughAmmoBroadcastDuration, _plugin.Config.notEnoughAmmoBroadcast.Replace("%ammo", $"{_plugin.Config.ammoUsedPerShot}"));
-                            else {
-                                if(_plugin.Config.clearBroadcasts)
-                                    ev.Shooter.ClearBroadcasts();
-                                ev.Shooter.Broadcast(_plugin.Config.notEnoughAmmoBroadcastDuration, _plugin.Config.notEnoughAmmoBroadcast.Replace("%ammo", $"{_plugin.Config.ammoUsedPerShot}"));
-                            }
-                        }
-                        ev.IsAllowed = false;
-                        return;
+
+            if(ev.Shooter.CurrentItem is Firearm tranqGun) {
+                if (tranqGun.Ammo < _plugin.Config.ammoUsedPerShot - 1)
+                {
+                    ev.IsAllowed = false;
+                    
+                    if (_plugin.Config.stopClientDesync)
+                    {
+                        tranqGun.Ammo = 0;
                     }
-                    ev.Shooter.RemoveWeaponAmmo(_plugin.Config.ammoUsedPerShot - 1);
+
+                    if(_plugin.Config.notEnoughAmmoBroadcastDuration > 0) {
+                        if(_plugin.Config.UseHintsSystem)
+                            ev.Shooter.ShowHint(_plugin.Config.notEnoughAmmoBroadcastDuration, _plugin.Config.notEnoughAmmoBroadcast.Replace("%ammo", $"{_plugin.Config.ammoUsedPerShot}"));
+                        else {
+                            if(_plugin.Config.clearBroadcasts)
+                                ev.Shooter.ClearBroadcasts();
+                            ev.Shooter.Broadcast(_plugin.Config.notEnoughAmmoBroadcastDuration, _plugin.Config.notEnoughAmmoBroadcast.Replace("%ammo", $"{_plugin.Config.ammoUsedPerShot}"));
+                        }
+                    }
+                    Log.Debug("Not enough ammo, disabling event.");
+                
+                    return;   
                 }
-            } catch(Exception e) {
-                e.Print("ShootEvent");
+                
+                ev.Shooter.ShowHitMarker(2f);
+            
+                Log.Debug($"Current Ammo: {tranqGun.Ammo}");
+                Log.Debug($"Setting ammo: {tranqGun.Ammo - (_plugin.Config.ammoUsedPerShot - 1)}");
+
+                tranqGun.Ammo = (byte) (tranqGun.Ammo - (_plugin.Config.ammoUsedPerShot - 1));
+                if (tranqGun.Ammo < _plugin.Config.ammoUsedPerShot && _plugin.Config.stopClientDesync)
+                {
+                    tranqGun.Ammo = 0;
+                }
             }
         }
 
         public void OnChangingItem(ChangingItemEventArgs ev)
-        {
-            if (!IsTranquilizer(ev.NewItem.Type) || _plugin.Config.pickedUpBroadcastDuration <= 0) return;
-            if((ev.NewItem is Firearm gun && gun.Attachments.Any(attachment => attachment.Name == AttachmentNameTranslation.SoundSuppressor)) && 
-               _plugin.Config.silencerRequired)
+        { 
+            Log.Debug("Changing Item Ran");
+            if (ev.NewItem == null || !IsTranquilizer(ev.NewItem.Type) || _plugin.Config.pickedUpBroadcastDuration <= 0) return;
+            Log.Debug("Item Check 1");
+
+            if (!(ev.NewItem is Firearm gun &&
+                 gun.Attachments.Any(attachment => attachment.Name == AttachmentNameTranslation.SoundSuppressor)) &&
+                _plugin.Config.silencerRequired)
                 return;
-            
+
+
+            Log.Debug("Item Check 2");
             if(_plugin.Config.UseHintsSystem)
                 ev.Player.ShowHint(_plugin.Config.pickedUpBroadcastDuration, _plugin.Config.pickedUpBroadcast.Replace("%ammo", $"{_plugin.Config.ammoUsedPerShot}"));
             else {
@@ -83,35 +113,44 @@ namespace TranqGun {
         public void HurtEvent(HurtingEventArgs ev) {
             try
             {
-                if(ev.Attacker == null || ev.Attacker == ev.Target || _plugin.Config.roleBlacklist.Contains(ev.Target.Role))
+                Log.Debug("Ran Hurt Event");
+                if(ev.Attacker == null || ev.Target == null || ev.Attacker == ev.Target || _plugin.Config.roleBlacklist.Contains(ev.Target.Role))
                     return;
-                if(Tranquilized.Contains(ev.Target.UserId)
-                   && (ev.Handler.Type == DamageType.Decontamination || ev.Handler.Type == DamageType.Warhead || ev.Handler.Type == DamageType.Scp939) 
-                   && (_plugin.Config.teleportAway || _plugin.Config.SummonRagdoll)) {
+                Log.Debug("Hurt Check 1");
+
+                if (Tranquilized.Contains(ev.Target.UserId)
+                    && (ev.Handler.Type == DamageType.Decontamination || ev.Handler.Type == DamageType.Warhead || ev.Handler.Type == DamageType.Scp939) 
+                    && (_plugin.Config.teleportAway || _plugin.Config.SummonRagdoll)) 
+                {
+                    Log.Debug("Hurt Check 2");
                     ev.Amount = 0;
-                    return;
                 }
 
                 if (!IsTranquilizerDamage(ev.Handler.Type) || Tranquilized.Contains(ev.Target.UserId)) return;
+                Log.Debug("Hurt Check 3");
+                
                 if(_plugin.Config.silencerRequired && !ev.Attacker.HasSilencer()) return;
+                Log.Debug("Hurt Check 4");
 
                 ev.Amount = _plugin.Config.tranquilizerDamage;
 
-                if(!_plugin.Config.FriendlyFire && (ev.Target.Side == ev.Attacker.Side
-                                                    || (_plugin.Config.areTutorialSerpentsHand && ev.Attacker.Side == Side.ChaosInsurgency && ev.Target.Role == RoleType.Tutorial)))
-                    return;
-
+                if(!_plugin.Config.FriendlyFire && (ev.Target.Side == ev.Attacker.Side || _plugin.Config.areTutorialSerpentsHand && ev.Attacker.Side == Side.ChaosInsurgency && ev.Target.Role == RoleType.Tutorial)) return;
+                Log.Debug("Hurt Check 5");
+                
                 var id = ev.Target.UserId;
                 if(_plugin.Config.specialRoles.Keys.Contains(ev.Target.Role)) {
+                    Log.Debug("Hurt Check 6");
                     if(!ScpShots.ContainsKey(id))
                         ScpShots.Add(id, 0);
                     ScpShots[id] += 1;
                     if (ScpShots[id] < _plugin.Config.specialRoles[ev.Target.Role]) return;
+                    Log.Debug("Hurt Check 7");
                     Sleep(ev.Target);
                     ScpShots[id] = 0;
                     return;
                 }
-
+                
+                ev.Attacker.ShowHitMarker(2f);
                 Sleep(ev.Target);
             } catch(Exception e) {
                 e.Print("HurtEvent (TranqHandler)");
@@ -120,6 +159,7 @@ namespace TranqGun {
 
         public void Sleep(Player player) {
             try {
+                Log.Debug("Running Sleep");
                 // Initialize variables & add player to list
                 var oldPos = player.Position;
                 var controller = player.ReferenceHub.playerEffectsController;
@@ -151,11 +191,12 @@ namespace TranqGun {
                 }
 
                 if(_plugin.Config.SummonRagdoll) {
+                    Log.Debug("Summoning Ragdoll");
                     // Spawn a Ragdoll
                     // PlayerStats.HitInfo hitInfo = new PlayerStats.HitInfo(1000f, player.UserId, DamageType.Com18, player.Id);
                     
                     // TODO - Pretty sure this doesnt work. it needs tested.
-                    Exiled.API.Features.Ragdoll.Spawn(player, new FirearmDamageHandler());
+                    Exiled.API.Features.Ragdoll.Spawn(player, new CustomReasonDamageHandler("Under the influence of a tranquilizer"));
 
                     /*player.GameObject.GetComponent<Ragdoll>().SpawnRagdoll(
                         oldPos, player.GameObject.transform.rotation, player.ReferenceHub.playerMovementSync.PlayerVelocity,
@@ -181,6 +222,7 @@ namespace TranqGun {
 
         public void Wake(Player player, Vector3 oldPos, bool inPd = false, bool bleeding = false, float bleedingDur = 3) {
             try {
+                Log.Debug("Waking up player");
                 Tranquilized.Remove(player.UserId);
 
                 if(_plugin.Config.SummonRagdoll)
@@ -213,8 +255,8 @@ namespace TranqGun {
                     else
                     {
                         if (!Map.Lifts.Where(l => l.Type() == ElevatorType.GateA || l.Type() == ElevatorType.GateB)
-                            .SelectMany(l => l.elevators).Any(e =>
-                                Vector3.Distance(player.Position, e.target.position) <= 3.6f)) return;
+                                .SelectMany(l => l.elevators).Any(e =>
+                                    Vector3.Distance(player.Position, e.target.position) <= 3.6f)) return;
                             
                         player.Kill("You were in an elevator!");
                     }
@@ -310,9 +352,23 @@ namespace TranqGun {
         /// </summary>
         /// <param name="type"></param>
         /// <returns></returns>
-        public bool IsTranquilizer(ItemType type) =>
-            (type == ItemType.GunCOM15 && _plugin.Config.comIsTranquilizer)
-                || (type == ItemType.GunCOM18 && _plugin.Config.uspIsTranquilizer);
+        public bool IsTranquilizer(ItemType type)
+        {
+            Log.Debug("Running Tranq Check");
+            if (type == ItemType.GunCOM15 && _plugin.Config.comIsTranquilizer)
+            {
+                Log.Debug("Com15 Is Tranq");
+                return true;
+            }
+            if (type == ItemType.GunCOM18 && _plugin.Config.uspIsTranquilizer)
+            {
+                Log.Debug("Com18 Is Tranq");
+                return true;
+            }
+
+            return false;
+        }
+            
 
         // I'm fucking lazy 
         public void ToggleArmor(Player p, out string replyMessage) {
