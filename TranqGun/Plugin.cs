@@ -12,7 +12,7 @@ namespace TranqGun {
         public override string Name => "TranquilizerGun";
         public override string Author => "Beryl";
         public override Version RequiredExiledVersion => new Version(4, 1, 3);
-        public override Version Version { get; } = new Version(2, 5, 0);
+        public override Version Version { get; } = new Version(2, 5, 1);
         public static Plugin Instance { get; private set;  }
 
         public EventsHandler Handler;
