@@ -8,11 +8,18 @@ using Exiled.API.Features;
 using Exiled.API.Features.Items;
 using Exiled.Events.EventArgs;
 using InventorySystem.Items.Firearms.Attachments;
+using Exiled.Events.EventArgs.Player;
+using Exiled.Events.EventArgs.Server;
 using MEC;
 using Mirror;
+using PlayerRoles;
 using PlayerStatsSystem;
 using UnityEngine;
 using Object = UnityEngine.Object;
+using Exiled.API.Features.DamageHandlers;
+using Exiled.API.Interfaces;
+using static MapGeneration.ImageGenerator;
+using System.Xml.Linq;
 
 namespace TranqGun {
     public class EventsHandler {
@@ -38,13 +45,13 @@ namespace TranqGun {
 
         public void ShootEvent(ShootingEventArgs ev)
         {
-            if (!IsTranquilizer(ev.Shooter.CurrentItem.Type))
+            if (!IsTranquilizer(ev.Player.CurrentItem.Type))
                 return;
             
-            if(_plugin.Config.silencerRequired && !ev.Shooter.HasSilencer())
+            if(_plugin.Config.silencerRequired && !ev.Player.HasSilencer())
                 return;
             
-            if (!(ev.Shooter.CurrentItem is Firearm tranqGun)) return;
+            if (!(ev.Player.CurrentItem is Firearm tranqGun)) return;
             if (tranqGun.Ammo < _plugin.Config.ammoUsedPerShot - 1)
             {
                 ev.IsAllowed = false;
@@ -56,18 +63,18 @@ namespace TranqGun {
 
                 if(_plugin.Config.notEnoughAmmoBroadcastDuration > 0) {
                     if(_plugin.Config.UseHintsSystem)
-                        ev.Shooter.ShowHint(_plugin.Config.notEnoughAmmoBroadcastDuration, _plugin.Config.notEnoughAmmoBroadcast.Replace("%ammo", $"{_plugin.Config.ammoUsedPerShot}"));
+                        ev.Player.ShowHint(_plugin.Config.notEnoughAmmoBroadcastDuration, _plugin.Config.notEnoughAmmoBroadcast.Replace("%ammo", $"{_plugin.Config.ammoUsedPerShot}"));
                     else {
                         if(_plugin.Config.clearBroadcasts)
-                            ev.Shooter.ClearBroadcasts();
-                        ev.Shooter.Broadcast(_plugin.Config.notEnoughAmmoBroadcastDuration, _plugin.Config.notEnoughAmmoBroadcast.Replace("%ammo", $"{_plugin.Config.ammoUsedPerShot}"));
+                            ev.Player.ClearBroadcasts();
+                        ev.Player.Broadcast(_plugin.Config.notEnoughAmmoBroadcastDuration, _plugin.Config.notEnoughAmmoBroadcast.Replace("%ammo", $"{_plugin.Config.ammoUsedPerShot}"));
                     }
                 }
 
                 return;   
             }
                 
-            ev.Shooter.ShowHitMarker(2f);
+            ev.Player.ShowHitMarker(2f);
             tranqGun.Ammo = (byte) (tranqGun.Ammo - (_plugin.Config.ammoUsedPerShot - 1));
             if (tranqGun.Ammo < _plugin.Config.ammoUsedPerShot && _plugin.Config.stopClientDesync)
             {
@@ -80,7 +87,7 @@ namespace TranqGun {
             if (ev.NewItem == null || !IsTranquilizer(ev.NewItem.Type) || _plugin.Config.pickedUpBroadcastDuration <= 0) return;
 
             if (!(ev.NewItem is Firearm gun &&
-                  gun.Attachments.Any(attachment => attachment.Name == AttachmentNameTranslation.SoundSuppressor)) &&
+                  gun.Attachments.Any(attachment => attachment.Name == AttachmentName.SoundSuppressor)) &&
                 _plugin.Config.silencerRequired) 
                 return;
             
@@ -96,37 +103,37 @@ namespace TranqGun {
         public void HurtEvent(HurtingEventArgs ev) {
             try
             {
-                if(ev.Attacker == null || ev.Target == null || ev.Attacker == ev.Target || _plugin.Config.roleBlacklist.Contains(ev.Target.Role))
+                if(ev.Attacker == null || ev.Player == null || ev.Attacker == ev.Player || _plugin.Config.roleBlacklist.Contains(ev.Player.Role))
                     return;
 
-                if (Tranquilized.Contains(ev.Target.UserId)
-                    && (ev.Handler.Type == DamageType.Decontamination || ev.Handler.Type == DamageType.Warhead || ev.Handler.Type == DamageType.Scp939) 
+                if (Tranquilized.Contains(ev.Player.UserId)
+                    && (ev.DamageHandler.Type == DamageType.Decontamination || ev.DamageHandler.Type == DamageType.Warhead || ev.DamageHandler.Type == DamageType.Scp939) 
                     && (_plugin.Config.teleportAway || _plugin.Config.SummonRagdoll)) 
                 {
                     ev.Amount = 0;
                 }
 
-                if (!IsTranquilizerDamage(ev.Handler.Type) || Tranquilized.Contains(ev.Target.UserId)) return;
+                if (!IsTranquilizerDamage(ev.DamageHandler.Type) || Tranquilized.Contains(ev.Player.UserId)) return;
 
                 if(_plugin.Config.silencerRequired && !ev.Attacker.HasSilencer()) return;
 
                 ev.Amount = _plugin.Config.tranquilizerDamage;
 
-                if(!_plugin.Config.FriendlyFire && (ev.Target.Side == ev.Attacker.Side || _plugin.Config.areTutorialSerpentsHand && ev.Attacker.Side == Side.ChaosInsurgency && ev.Target.Role == RoleType.Tutorial)) return;
+                if(!_plugin.Config.FriendlyFire && (ev.Player.Role.Side == ev.Attacker.Role.Side || _plugin.Config.areTutorialSerpentsHand && ev.Attacker.Role.Side == Side.ChaosInsurgency && ev.Player.Role == RoleTypeId.Tutorial)) return;
 
-                var id = ev.Target.UserId;
-                if(_plugin.Config.specialRoles.Keys.Contains(ev.Target.Role)) {
+                var id = ev.Player.UserId;
+                if(_plugin.Config.specialRoles.Keys.Contains(ev.Player.Role)) {
                     if(!ScpShots.ContainsKey(id))
                         ScpShots.Add(id, 0);
                     ScpShots[id] += 1;
-                    if (ScpShots[id] < _plugin.Config.specialRoles[ev.Target.Role]) return;
-                    Sleep(ev.Target);
+                    if (ScpShots[id] < _plugin.Config.specialRoles[ev.Player.Role]) return;
+                    Sleep(ev.Player);
                     ScpShots[id] = 0;
                     return;
                 }
                 
                 ev.Attacker.ShowHitMarker(2f);
-                Sleep(ev.Target);
+                Sleep(ev.Player);
             } catch(Exception e) {
                 e.Print("HurtEvent (TranqHandler)");
             }
@@ -163,16 +170,14 @@ namespace TranqGun {
                         Timing.CallDelayed(_plugin.Config.invisibleDuration, () => Invisible(player, false));
                     }
                 }
-
                 if(_plugin.Config.SummonRagdoll) {
                     // Spawn a Ragdoll
-                    
-                    Exiled.API.Features.Ragdoll.Spawn(player, new CustomReasonDamageHandler("Under the influence of a tranquilizer"));
-                }
 
+                    Exiled.API.Features.Ragdoll.CreateAndSpawn(player.Role, player.DisplayNickname, new CustomReasonDamageHandler("Under the influence of a tranquilizer"), player.Position, default);
+                }
                 if(_plugin.Config.teleportAway) {
                     // Apply effects
-                    controller.EnableEffect<Amnesia>(sleepDuration);
+                    controller.EnableEffect<AmnesiaVision>(sleepDuration);
                     controller.EnableEffect<Invisible>(sleepDuration);
 
                     player.Position = new Vector3(_plugin.Config.newPos_x, _plugin.Config.newPos_y, _plugin.Config.newPos_z);
@@ -191,9 +196,9 @@ namespace TranqGun {
                 Tranquilized.Remove(player.UserId);
 
                 if(_plugin.Config.SummonRagdoll)
-                    foreach(var doll in Object.FindObjectsOfType<Ragdoll>()) {
-                        if(doll.Info.OwnerHub.nicknameSync == player.ReferenceHub.nicknameSync) {
-                            NetworkServer.Destroy(doll.gameObject);
+                    foreach(var doll in Ragdoll.List) {
+                        if(doll.NetworkInfo.OwnerHub.nicknameSync == player.ReferenceHub.nicknameSync) {
+                            NetworkServer.Destroy(doll.GameObject);
                         }
                     }
 
@@ -219,9 +224,8 @@ namespace TranqGun {
                         player.Kill("The warhead was detonated and your were exploded while you were tranquilized!");
                     else
                     {
-                        if (!Map.Lifts.Where(l => l.Type() == ElevatorType.GateA || l.Type() == ElevatorType.GateB)
-                                .SelectMany(l => l.elevators).Any(e =>
-                                    Vector3.Distance(player.Position, e.target.position) <= 3.6f)) return;
+                        if (!Lift.List.Where(l => l.Type == ElevatorType.GateA || l.Type == ElevatorType.GateB)
+                                .Any(l => l.IsInElevator(player.Position))) return;
                             
                         player.Kill("You were in an elevator!");
                     }
@@ -233,7 +237,7 @@ namespace TranqGun {
 
         public void EnableEffects(PlayerEffectsController controller) {
             if(_plugin.Config.amnesia) {
-                controller.EnableEffect<Amnesia>(_plugin.Config.amnesiaDuration);
+                controller.EnableEffect<AmnesiaVision>(_plugin.Config.amnesiaDuration);
             }
 
             if(_plugin.Config.asphyxiated) {
@@ -277,7 +281,7 @@ namespace TranqGun {
             }
 
             if(_plugin.Config.sinkhole) {
-                controller.EnableEffect<SinkHole>(_plugin.Config.sinkholeDuration);
+                controller.EnableEffect<Sinkhole>(_plugin.Config.sinkholeDuration);
             }
 
             if(_plugin.Config.speed) {
@@ -300,11 +304,11 @@ namespace TranqGun {
                     if(item == player)
                         continue;
 
-                    item.TargetGhostsHashSet.Add(player.Id);
+                    item.EnableEffect<Invisible>();
                 }
             } else {
                 foreach(var item in Player.List) {
-                    item.TargetGhostsHashSet.Remove(player.Id);
+                    item.DisableEffect<Invisible>();
                 }
             }
         }

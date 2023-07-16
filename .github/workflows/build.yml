@@ -51,4 +51,4 @@ jobs:
         uses: actions/upload-artifact@v2
         with:
           name: Plugin DLL
-          path: TranqGun\bin\Release\net472\TranqGun*.dll
+          path: TranqGun\bin\Release\net48\TranqGun*.dll

@@ -17,9 +17,8 @@ And... obviously include [EXILED](https://github.com/galaxy119/EXILED "EXILED").
 Arguments inside &lt;&gt; are required. [] means it's optional.
 | Command | Description | Arguments |
 | ------------- | ------------------------------ | -------------------- |
-| `tg`   | Plugin's main command, sends info. | **protect/toggle/replaceguns/etc**|
+| `tg`   | Plugin's main command, sends info. | **protect/toggle/etc**|
 - Toggle: Toggles all of the plugin's functions besides it's commands.
-- ReplaceGuns: Replaces all the COM15s on the map with a Tranquilizer.
 - Protect: Protection against "T-Guns" and Sleep command. (Good for administrators!)
 - Sleep: Force Sleep on someone.
 - AddGun: Gives you a Tranquilizer Gun.
@@ -36,7 +35,6 @@ These are the permissions that should be added to your permissions.yml inside yo
 | tgun.tg | `tg` and it's arguments | 
 | tgun.armor | `tg protect` | 
 | tgun.toggle | `tg toggle` | 
-| tgun.replaceguns | `tg replaceguns` |
 | tgun.sleep | `tg sleep` |
 | tgun.givegun | `tg addgun` |
 | tgun.* | `All above` | 

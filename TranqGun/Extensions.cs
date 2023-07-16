@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq;
+using Exiled.API.Enums;
 using Exiled.API.Features;
 using Exiled.API.Features.Items;
 using InventorySystem;
@@ -11,7 +12,7 @@ namespace TranqGun {
 		public static bool HasSilencer(this Player p)
 		{
 			return p.CurrentItem is Firearm gun && gun.Attachments.Any(attachment =>
-				attachment.Name == AttachmentNameTranslation.SoundSuppressor);
+				attachment.Name == AttachmentName.SoundSuppressor);
 		}
 
 		public static void ShowHint(this Player p, float duration, string text) => p.ShowHint(text, duration);
@@ -30,20 +31,17 @@ namespace TranqGun {
             Log.Error($"{type}: {e.Message}\n{e.StackTrace}");
         }
 
-		// Gonna wait for attachments API to be le finished
-		
-		/*public static Item GetTranquilizerItem()
+		public static Item GetTranquilizerItem()
 		{
-			var tranqType = Plugin.Instance.Config.comIsTranquilizer ? ItemType.GunCOM15 : ItemType.GunCOM18;
-			var tranqItem = new Firearm(tranqType);
-			
-			tranqItem.Attachments[37].Slot == AttachmentSlot.Barrel
+			var tranqType = Plugin.Instance.Config.comIsTranquilizer ? FirearmType.Com15 : FirearmType.Com18;
+			var tranqItem = Firearm.Create(tranqType);
 
+            if ( Plugin.Instance.Config.silencerRequired ) {
+                tranqItem.AddAttachment(AttachmentName.SoundSuppressor);
+            }
 
-			var tempGun = new Firearm(tranqItem);
-			// This is still to do
-			return tempGun;
-		}*/
+            return tranqItem;
+		}
 
     }
 }

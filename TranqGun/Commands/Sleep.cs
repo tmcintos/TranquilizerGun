@@ -25,7 +25,7 @@ namespace TranqGun.Commands {
                 if(argument.Equals("all", StringComparison.OrdinalIgnoreCase) || argument == "*") {
                     int amountSleeping = 0;
                     foreach(Player p in Player.List) {
-                        if(p.Side != Side.None && !Handler.Tranquilized.Contains(p.UserId)) {
+                        if(p.Role.Side != Side.None && !Handler.Tranquilized.Contains(p.UserId)) {
                             Handler.Sleep(p);
                             amountSleeping++;
                         }

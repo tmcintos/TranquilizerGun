@@ -4,10 +4,12 @@ using System.ComponentModel;
 using System.Text.RegularExpressions;
 using Exiled.API.Features;
 using Exiled.API.Interfaces;
+using PlayerRoles;
 using TranqGun;
 
 namespace TranquilizerGun {
     public class TranqConfig : IConfig {
+        bool IConfig.Debug { get; set; } = false;
 
         [Description("Is the plugin enabled?")]
         public bool IsEnabled { get; set; } = true;
@@ -93,8 +95,8 @@ namespace TranquilizerGun {
         public bool doSpecialRoles { get; set; } = true;
         public string specialRolesList { get; set; } = "Scp173:2, Scp106:3";
 
-        internal List<RoleType> roleBlacklist;
-        internal Dictionary<RoleType, ushort> specialRoles;
+        internal List<RoleTypeId> roleBlacklist;
+        internal Dictionary<RoleTypeId, ushort> specialRoles;
         #endregion
 
         #region PlayerEffects
@@ -150,13 +152,13 @@ namespace TranquilizerGun {
         public float invisibleDuration { get; set; } = 3f;
         #endregion
 
-        public List<RoleType> BlacklistedRoles() {
-            List<RoleType> l = new List<RoleType>();
+        public List<RoleTypeId> BlacklistedRoles() {
+            List<RoleTypeId> l = new List<RoleTypeId>();
             if(doBlacklist) {
                 try {
                     string[] bl = Regex.Replace(blacklist, @"\s+", "").Split(',');
                     foreach(string r in bl) {
-                        if(Enum.TryParse(r, true, out RoleType role)) {
+                        if(Enum.TryParse(r, true, out RoleTypeId role)) {
                             l.Add(role);
                         } else
                             Log.Error($"Couldn't parse role: {r}.");
@@ -168,14 +170,14 @@ namespace TranquilizerGun {
             return l;
         }
 
-        public Dictionary<RoleType, ushort> SpecialRoles() {
-            Dictionary<RoleType, ushort> l = new Dictionary<RoleType, ushort>();
+        public Dictionary<RoleTypeId, ushort> SpecialRoles() {
+            Dictionary<RoleTypeId, ushort> l = new Dictionary<RoleTypeId, ushort>();
             if(doSpecialRoles) {
                 try {
                     string[] specialRoles = Regex.Replace(specialRolesList, @"\s+", "").Split(',');
                     foreach(string o in specialRoles) {
                         string[] option = Regex.Replace(o, @"\s+", "").Split(':');
-                        if(Enum.TryParse(option[0], true, out RoleType role) && ushort.TryParse(option[1], out ushort shots)) {
+                        if(Enum.TryParse(option[0], true, out RoleTypeId role) && ushort.TryParse(option[1], out ushort shots)) {
                             l.Add(role, shots);
                         } else Log.Error($"Couldn't load {o}.");
                     }

@@ -15,14 +15,9 @@ namespace TranqGun.Commands {
 
         public string[] Aliases => new[] { "givegun", "gg", "addgun" };
 
-        public string Description => "Gives you a Tranquilizer Gun. (BROKEN!)";
+        public string Description => "Gives you a Tranquilizer Gun.";
         
-        public bool Execute(ArraySegment<string> arguments, ICommandSender sender, out string response)
-        {
-            throw new NotImplementedException();
-        }
-
-        /*public bool Execute(ArraySegment<string> arguments, ICommandSender sender, out string response) {
+        public bool Execute(ArraySegment<string> arguments, ICommandSender sender, out string response) {
             if(!sender.CheckPermission("tgun.sleep")) {
                 response = "<color=red>Permission denied.</color>";
                 return false;
@@ -33,7 +28,7 @@ namespace TranqGun.Commands {
                 if(argument.Equals("all", StringComparison.OrdinalIgnoreCase) || argument == "*") {
                     int playerAmount = 0;
                     foreach(Player p in Player.List) {
-                        if(p.Side != Side.None) {
+                        if(p.Role.Side != Side.None) {
                             p.AddItem(Extensions.GetTranquilizerItem());
                             playerAmount++;
                         }
@@ -56,6 +51,6 @@ namespace TranqGun.Commands {
                 response = $"<color=#4ce300>You've received a TranqGun!</color>";
             }
             return false;
-        }*/
+        }
     }
 }
